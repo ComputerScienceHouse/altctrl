@@ -1,13 +1,15 @@
 /*
     Copyright © 2013 Free Software Foundation, Inc
     See licensing in LICENSE file
-
     File: examples/ex_4.rs
     Author: Jesse 'Jeaye' Wilkerson
+    Modified by: Will Nilges (git.nilges.me)
     Description:
       Window creation and input example.
       Use the cursor keys to move the window
       around the screen.
+      Also displays alerts with 'm'
+      and can jump around the screen with 'g'
 */
 
 extern crate ncurses;
@@ -32,7 +34,7 @@ fn main()
 
     /* Status/help info. */
     addstr("Use the arrow keys to move");
-    mvprintw(LINES() - 1, 0, "Press F1 to exit");
+    mvprintw(LINES() - 1, 0, "Press F1 to exit. Press 'g' to goto. Press 'm' to make a message.");
     refresh();
 
     /* Get the screen bounds. */
@@ -50,96 +52,96 @@ fn main()
     {
         match ch
         {
-          KEY_LEFT =>
-          {
-            start_x -= 1;
-            destroy_win(win);
-            win = create_win(start_y, start_x);
-          },
-          KEY_RIGHT =>
-          {
-            start_x += 1;
-            destroy_win(win);
-            win = create_win(start_y, start_x);
-          },
-          KEY_UP =>
-          {
-            start_y -= 1;
-            destroy_win(win);
-            win = create_win(start_y, start_x);
-          },
-          KEY_DOWN =>
-          {
-            start_y += 1;
-            destroy_win(win);
-            win = create_win(start_y, start_x);
-          },
-          103 =>
-          {
-              mv(1, 0);
-              clrtoeol();
+            KEY_LEFT =>
+            {
+                start_x -= 1;
+                destroy_win(win);
+                win = create_win(start_y, start_x);
+            },
+            KEY_RIGHT =>
+            {
+                start_x += 1;
+                destroy_win(win);
+                win = create_win(start_y, start_x);
+            },
+            KEY_UP =>
+            {
+                start_y -= 1;
+                destroy_win(win);
+                win = create_win(start_y, start_x);
+            },
+            KEY_DOWN =>
+            {
+                start_y += 1;
+                destroy_win(win);
+                win = create_win(start_y, start_x);
+            },
+            103 =>
+            {
+                mv(1, 0);
+                clrtoeol();
 
-             mv(2, 0);
-              clrtoeol();
-              addstr("Enter x:");
-              let mut x = String::new();
-              
-              ch = getch();
-              while ch != 10 {
-                x.push(ch as u8 as char);
-                addstr(&(ch as u8 as char).to_string());
-                ch = getch();
-              }
-              start_x = x.parse().unwrap();
+                mv(2, 0);
+                clrtoeol();
+                addstr("Enter x:");
+                let mut x = String::new();
 
-              addstr(" | Enter y:");
-              let mut y = String::new();
-              ch = getch();
-              while ch != 10 {
-                y.push(ch as u8 as char);
-                addstr(&(ch as u8 as char).to_string());
                 ch = getch();
-              }
-              start_y = y.parse().unwrap();
-          },
-          109 =>
-          {
-              mv(1,0);
-              clrtoeol();
-              addstr("Enter alert message: ");
-              let mut s = String::new();
-              ch = getch();
-              while ch != 10 {
-                s.push(ch as u8 as char);
-                addstr(&(ch as u8 as char).to_string());
-                ch = getch();
-              }
+                while ch != 10 {
+                    x.push(ch as u8 as char);
+                    addstr(&(ch as u8 as char).to_string());
+                    ch = getch();
+                }
+                start_x = x.parse().unwrap();
 
-              mv(2, 0);
-              clrtoeol();
-              addstr("Enter x:");
-              let mut x = String::new();
-              ch = getch();
-              while ch != 10 {
-                x.push(ch as u8 as char);
-                addstr(&(ch as u8 as char).to_string());
+                addstr(" | Enter y:");
+                let mut y = String::new();
                 ch = getch();
-              }
-              let x_i32 = x.parse().unwrap();
-
-              addstr(" | Enter y:");
-              let mut y = String::new();
-              ch = getch();
-              while ch != 10 {
-                y.push(ch as u8 as char);
-                addstr(&(ch as u8 as char).to_string());
+                while ch != 10 {
+                    y.push(ch as u8 as char);
+                    addstr(&(ch as u8 as char).to_string());
+                    ch = getch();
+                }
+                start_y = y.parse().unwrap();
+            },
+            109 =>
+            {
+                mv(1,0);
+                clrtoeol();
+                addstr("Enter alert message: ");
+                let mut s = String::new();
                 ch = getch();
-              }
-              let y_i32 = y.parse().unwrap();
+                while ch != 10 {
+                    s.push(ch as u8 as char);
+                    addstr(&(ch as u8 as char).to_string());
+                    ch = getch();
+                }
 
-              put_alert(x_i32, y_i32, &s);
-          },
-          _ => { }
+                mv(2, 0);
+                clrtoeol();
+                addstr("Enter x:");
+                let mut x = String::new();
+                ch = getch();
+                while ch != 10 {
+                    x.push(ch as u8 as char);
+                    addstr(&(ch as u8 as char).to_string());
+                    ch = getch();
+                }
+                let x_i32 = x.parse().unwrap();
+
+                addstr(" | Enter y:");
+                let mut y = String::new();
+                ch = getch();
+                while ch != 10 {
+                    y.push(ch as u8 as char);
+                    addstr(&(ch as u8 as char).to_string());
+                    ch = getch();
+                }
+                let y_i32 = y.parse().unwrap();
+
+                put_alert(x_i32, y_i32, &s);
+            },
+            _ => { }
         }
 
         put_pos(start_x, start_y);
@@ -162,18 +164,18 @@ fn main()
 
 fn create_win(start_y: i32, start_x: i32) -> WINDOW
 {
-  let win = newwin(WINDOW_HEIGHT, WINDOW_WIDTH, start_y, start_x);
-  box_(win, 0, 0);
-  wrefresh(win);
-  win
+    let win = newwin(WINDOW_HEIGHT, WINDOW_WIDTH, start_y, start_x);
+    box_(win, 0, 0);
+    wrefresh(win);
+    win
 }
 
 fn destroy_win(win: WINDOW)
 {
-  let ch = ' ' as chtype;
-        wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
-        wrefresh(win);
-        delwin(win);
+    let ch = ' ' as chtype;
+    wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
+    wrefresh(win);
+    delwin(win);
 }
 
 fn put_pos(start_y: i32, start_x: i32) {

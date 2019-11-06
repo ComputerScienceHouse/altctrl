@@ -104,7 +104,7 @@ fn main()
         if start_y == max_y-1 { start_y = 1; }
 
         if start_x == 1 && start_y == 1 {
-            put_alert(30, 45, "The quick brown fox jumps over the lazy dog. and actually, I believe you'll find that it's pronounced whomstved");
+            put_alert(30, 30, "The quick brown fox jumps over the lazy dog. and actually, I believe you'll find that it's pronounced whomstved...");
         }
     }
 
@@ -142,26 +142,27 @@ fn put_alert(x_dim: i32, y_dim: i32, message: &str) {
 
     let start_y = (max_y - y_dim) / 2;
     let start_x = (max_x - x_dim) / 2;
-    let win = newwin((x_dim/2)+2, (y_dim/2)+2, start_y, start_x);
+    let win = newwin((x_dim)+2, (y_dim)+2, start_y, start_x);
     //mvprintw(start_y + 1, start_x + 1, message);
     if message.len() > (x_dim as usize)
     {
         let real_x_dim = x_dim as usize;
-        for i in 0..(message.len()/(real_x_dim)){
+        for i in 0..message.len(){
             let i_i32 = i as i32;
             let start = real_x_dim*i;
             if i == 0 {
                 mvprintw(start_y+1+i_i32, start_x+1, &message[0..real_x_dim]);
-            }
-            else if real_x_dim*(i+2) > message.len() {
-                mvprintw(start_y+1+i_i32, start_x+1, &message[real_x_dim*(i+1)..]);
-            }
-            else {
-                mvprintw(start_y+1+i_i32, start_x+1, &message[real_x_dim*(i+1)..real_x_dim*(i+2)]);
+            } else if real_x_dim*(i+1) >= message.len() {
+                mvprintw(start_y+1+i_i32, start_x+1, &message[real_x_dim*(i)..]);
+                break;
+            } else {
+                mvprintw(start_y+1+i_i32, start_x+1, &message[real_x_dim*(i)..real_x_dim*(i+1)]);
             }
         }
         //mvprintw(start_y+1, start_x+1, &message[..(x_dim as usize)*2-2]);
         //mvprintw(start_y+2, start_x+1, &message[(x_dim as usize)*2-2..]);
+    } else {
+        mvprintw(start_y+1, start_x+1, &message);
     }
     box_(win, 0, 0);
     wrefresh(win);

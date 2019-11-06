@@ -76,24 +76,73 @@ fn main()
           },
           103 =>
           {
-              mvprintw( 0, 30, "Enter x");
-              let mut s = String::new();
-              getstr(&mut s);
-              start_x = s.parse().unwrap();
-              //dbg!(s);
+              mv(1, 0);
+              clrtoeol();
 
-              mvprintw(0, 38, "Enter y");
-              let mut s = String::new();
-              getstr(&mut s);
-              start_y = s.parse().unwrap();
-              //dbg!(s);
+             mv(2, 0);
+              clrtoeol();
+              addstr("Enter x:");
+              let mut x = String::new();
+              
+              ch = getch();
+              while ch != 10 {
+                x.push(ch as u8 as char);
+                addstr(&(ch as u8 as char).to_string());
+                ch = getch();
+              }
+              start_x = x.parse().unwrap();
 
-              mvprintw(0, 30, "                                                   ");
+              addstr(" | Enter y:");
+              let mut y = String::new();
+              ch = getch();
+              while ch != 10 {
+                y.push(ch as u8 as char);
+                addstr(&(ch as u8 as char).to_string());
+                ch = getch();
+              }
+              start_y = y.parse().unwrap();
+          },
+          109 =>
+          {
+              mv(1,0);
+              clrtoeol();
+              addstr("Enter alert message: ");
+              let mut s = String::new();
+              ch = getch();
+              while ch != 10 {
+                s.push(ch as u8 as char);
+                addstr(&(ch as u8 as char).to_string());
+                ch = getch();
+              }
+
+              mv(2, 0);
+              clrtoeol();
+              addstr("Enter x:");
+              let mut x = String::new();
+              ch = getch();
+              while ch != 10 {
+                x.push(ch as u8 as char);
+                addstr(&(ch as u8 as char).to_string());
+                ch = getch();
+              }
+              let x_i32 = x.parse().unwrap();
+
+              addstr(" | Enter y:");
+              let mut y = String::new();
+              ch = getch();
+              while ch != 10 {
+                y.push(ch as u8 as char);
+                addstr(&(ch as u8 as char).to_string());
+                ch = getch();
+              }
+              let y_i32 = y.parse().unwrap();
+
+              put_alert(x_i32, y_i32, &s);
           },
           _ => { }
         }
 
-        put_pos(start_y, start_x);
+        put_pos(start_x, start_y);
         mvprintw(LINES() - 1, 0, "Press F1 to exit");
 
         ch = getch();
@@ -104,7 +153,7 @@ fn main()
         if start_y == max_y-1 { start_y = 1; }
 
         if start_x == 1 && start_y == 1 {
-            put_alert(30, 30, "The quick brown fox jumps over the lazy dog. and actually, I believe you'll find that it's pronounced whomstved...");
+            put_alert(30, 10, "The quick brown fox jumps over the lazy dog. and actually, I believe you'll find that it's pronounced whomstved... What is ligma? How did I get this disease? What are my options?");
         }
     }
 
@@ -142,14 +191,13 @@ fn put_alert(x_dim: i32, y_dim: i32, message: &str) {
 
     let start_y = (max_y - y_dim) / 2;
     let start_x = (max_x - x_dim) / 2;
-    let win = newwin((x_dim)+2, (y_dim)+2, start_y, start_x);
+    let win = newwin((y_dim)+2, (x_dim)+2, start_y, start_x);
     //mvprintw(start_y + 1, start_x + 1, message);
     if message.len() > (x_dim as usize)
     {
         let real_x_dim = x_dim as usize;
         for i in 0..message.len(){
             let i_i32 = i as i32;
-            let start = real_x_dim*i;
             if i == 0 {
                 mvprintw(start_y+1+i_i32, start_x+1, &message[0..real_x_dim]);
             } else if real_x_dim*(i+1) >= message.len() {
@@ -159,8 +207,6 @@ fn put_alert(x_dim: i32, y_dim: i32, message: &str) {
                 mvprintw(start_y+1+i_i32, start_x+1, &message[real_x_dim*(i)..real_x_dim*(i+1)]);
             }
         }
-        //mvprintw(start_y+1, start_x+1, &message[..(x_dim as usize)*2-2]);
-        //mvprintw(start_y+2, start_x+1, &message[(x_dim as usize)*2-2..]);
     } else {
         mvprintw(start_y+1, start_x+1, &message);
     }

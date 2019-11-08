@@ -63,8 +63,7 @@ fn main()
                 destroy_win(win);
                 win = create_win(start_y, start_x, window_width, window_height);
             },
-            103 =>
-            {
+            103 => { // Move window
                 mv(1, 0);
                 clrtoeol();
                 mv(2, 0);
@@ -108,8 +107,7 @@ fn main()
                 clrtoeol();
 
             },
-            109 =>
-            {
+            109 => { // Display alert
                 mv(1,0);
                 clrtoeol();
                 mv(2,0);
@@ -124,9 +122,10 @@ fn main()
                     ch = getch();
                 }
 
+                // DIMENSION CODE
                 mv(2, 0);
                 clrtoeol();
-                addstr("Enter x:");
+                addstr("Enter x dimension:");
                 let mut x = String::new();
                 ch = getch();
                 while ch != 10 {
@@ -146,7 +145,7 @@ fn main()
                     },
                 }
 
-                addstr(" | Enter y:");
+                addstr(" | Enter y dimension:");
                 let mut y = String::new();
                 ch = getch();
                 while ch != 10 {
@@ -163,7 +162,47 @@ fn main()
                     },
                 }
 
-                put_alert(x_i32, y_i32, &s);
+                //POSITION CODE
+                mv(3, 0);
+                clrtoeol();
+                addstr("Enter x position:");
+                let mut x = String::new();
+                ch = getch();
+                while ch != 10 {
+                    x.push(ch as u8 as char);
+                    addstr(&(ch as u8 as char).to_string());
+                    ch = getch();
+                }
+                let x_i32_pos;
+                match x.parse::<i32>() {
+                    Ok(n) => x_i32_pos = n,
+                    Err(_e) => {
+                        x_i32_pos = 0;
+                        mv(3,0);
+                        addstr("Invalid dimension entered.");
+                        mv(4,0);
+
+                    },
+                }
+
+                addstr(" | Enter y position:");
+                let mut y = String::new();
+                ch = getch();
+                while ch != 10 {
+                    y.push(ch as u8 as char);
+                    addstr(&(ch as u8 as char).to_string());
+                    ch = getch();
+                }
+                let y_i32_pos;
+                match y.parse::<i32>() {
+                    Ok(n) => y_i32_pos = n,
+                    Err(_e) => {
+                        y_i32_pos = 0;
+                        addstr("Invalid dimension entered.");
+                    },
+                } 
+
+                put_alert(x_i32_pos, y_i32_pos, x_i32, y_i32, &s);
 
                 mv(1,0);
                 clrtoeol();
@@ -175,7 +214,7 @@ fn main()
                 clrtoeol();
 
             },
-            114 => {
+            114 => { // Resize main window
                 mv(1, 0);
                 clrtoeol();
                 mv(2, 0);
@@ -233,7 +272,7 @@ fn main()
         if start_y == max_y-1 { start_y = 1; }
 
         if start_x == 1 && start_y == 1 {
-            put_alert(30, 10, "The quick brown fox jumps over the lazy dog. and actually, I believe you'll find that it's pronounced whomstved... What is ligma? How did I get this disease? What are my options?");
+            put_alert(-1, -1, 30, 10, "The quick brown fox jumps over the lazy dog. and actually, I believe you'll find that it's pronounced whomstved... What is ligma? How did I get this disease? What are my options?");
         }
     }
 
@@ -265,11 +304,16 @@ fn put_pos(start_y: i32, start_x: i32) {
     attroff(A_BOLD());
 }
 
-fn put_alert(x_dim: i32, y_dim: i32, message: &str) {
-    /* Get the screen bounds. */
+fn put_alert(x_loc: i32, y_loc: i32, x_dim: i32, y_dim: i32, message: &str) {
     let mut max_x = 0;
     let mut max_y = 0;
-    getmaxyx(stdscr(), &mut max_y, &mut max_x);
+    if x_loc == -1 && y_loc == -1 {
+        /* Get the screen bounds. */
+        getmaxyx(stdscr(), &mut max_y, &mut max_x);
+    }else {
+        max_x = x_loc;
+        max_y = y_loc;
+    }
 
     let start_y = (max_y - y_dim) / 2;
     let start_x = (max_x - x_dim) / 2;
@@ -295,3 +339,4 @@ fn put_alert(x_dim: i32, y_dim: i32, message: &str) {
     box_(win, 0, 0);
     wrefresh(win);
 }
+

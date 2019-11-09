@@ -19,6 +19,12 @@ pub enum Button {
     B4,
 }
 
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+pub enum Devices {
+    D1,
+    D2,
+}
+
 // Serial stuff... well, it's all serial stuff.
 #[derive(Serialize, Deserialize, Debug)]
 enum IncomingMsg {

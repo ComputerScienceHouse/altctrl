@@ -1,14 +1,16 @@
 use ncurses::*;
+use std::collections::HashMap;
 
 const INSTRUCTIONS: &str = "Press F1 to exit. Press 'g' to goto. Press 'm' to make a message.\nPress 'c' to clear. Press 'r' to resize the C U B E.";
 
-pub fn create_win(start_y: i32,
+pub fn create_win(name: String, start_y: i32,
                   start_x: i32,
                   window_width: i32,
-                  window_height: i32) -> WINDOW {
+                  window_height: i32, windows: &mut HashMap<String,WINDOW>) -> WINDOW {
     let win = newwin(window_height, window_width, start_y, start_x);
     box_(win, 0, 0);
     wrefresh(win);
+    windows.insert(name, win);
     win // *-ptr to return
 }
 
@@ -17,6 +19,29 @@ pub fn destroy_win(win: WINDOW) {
     wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
     wrefresh(win);
     delwin(win);
+}
+
+pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>) {
+    let mainwindow = "mainwindow".to_string();
+    match window.to_string() {
+        mainwindow => {
+            mvprintw(2, 0, "You idiot! Don't delete the main window!");
+        },
+        _ => {
+            match windows.get(&window) {
+                Some(&win) => {
+                    destroy_win(win);
+                    windows.remove(&window);
+                },
+                _ => {
+                    mvprintw(2, 0, "Invalid window name!");
+                },
+            }
+        }
+    }
+    
+
+//    let win = windows.get(&window).unwrap();
 }
 
 pub fn put_pos(start_y: i32, start_x: i32) {
@@ -44,7 +69,9 @@ pub fn put_alert(x_loc: i32,
                  y_loc: i32,
                  x_dim: i32,
                  y_dim: i32,
-                 message: &str) {
+                 name: &str,
+                 message: &str,
+                 windows: &mut HashMap<String,WINDOW>) {
     let mut max_x = 0;
     let mut max_y = 0;
     let start_x;
@@ -66,6 +93,7 @@ pub fn put_alert(x_loc: i32,
     }
 
     let win = newwin((y_dim)+2, (x_dim)+2, start_y, start_x);
+    windows.insert(name.to_string(), win);
     if message.len() > (x_dim as usize) {
         let real_x_dim = x_dim as usize;
         for i in 0..message.len(){

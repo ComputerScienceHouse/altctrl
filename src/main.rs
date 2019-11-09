@@ -1,46 +1,53 @@
-#![allow(dead_code)]
+extern crate serialport;
 
-use std::sync::mpsc;
+use std::io;
+use std::io::{Write, BufRead, BufReader};
+use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
-use event::*;
-use gui::GuiEvent;
 
-pub mod protocol;
+mod shared;
+mod protocol;
 mod gui;
 mod i2c;
-mod serial;
-mod event;
 
+
+use shared::{Event, SerialEvent};
+
+const PORT: &str = "/dev/serial0";
+
+pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
+    match serialport::open(PORT) {
+        Ok(mut serial_tx) => {
+            let mut serial_rx = BufReader::new(serial_tx.try_clone().unwrap());
+
+            thread::spawn(move || loop {
+                let mut line = String::new();
+
+                match serial_rx.read_line(&mut line) {
+                    Ok(_) => {
+                        // Handle new messages next
+                    }
+
+                    Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
+
+                    Err(e) => eprintln!("{:?}", e),
+                }
+            });
+
+            thread::spawn(move || {
+                for message in rx.iter() {
+                    //serial_tx.write_all(message.serialize().as_bytes()).unwrap();
+                }
+            });
+        }
+
+        Err(e) => {
+            eprintln!("Failed to open \"{}\". Error: {}", PORT, e);
+            ::std::process::exit(1);
+        }
+    }
+}
 
 fn main() {
-    let (tx, rx) = mpsc::channel();
-    let (gui_tx, gui_rx) = mpsc::channel();
-    let (serial_tx, serial_rx) = mpsc::channel();
-
-    let clone_tx = tx.clone();
-
-    /*thread::spawn(move || {
-        serial::launch(clone_tx, serial_rx);
-    });*/
-
-    let clone_tx = tx.clone();
-
-    thread::spawn(move || {
-        gui::launch(clone_tx, gui_rx);
-    });
-
-    let mut i2c_struct = i2c::initialize(tx.clone());
-
-    tx.send(Event::Gui(GuiEvent::Log("Hello there!".to_string()))).unwrap();
-
-    loop {
-        for event in rx.iter() {
-            match event {
-                Event::I2C(i2c_event) => i2c::handle(i2c_event, &mut i2c_struct),
-                Event::Serial(serial_event) => serial_tx.send(serial_event).unwrap(),
-                Event::Gui(gui_event) => gui_tx.send(gui_event).unwrap(),
-            }
-        }
-        
-    }
+    shared::start(launch);
 }

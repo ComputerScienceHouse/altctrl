@@ -1,17 +1,11 @@
-use std::io;
 use std::fs::File;
+use std::io;
 use std::io::prelude::*;
 
-// use std::sync::mpsc;
-// use std::thread;
-
-pub mod protocol;
-pub mod gui;
+mod gui;
 mod i2c;
-mod serial;
-mod event;
-
-// use protocol::*;
+mod protocol;
+mod shared;
 
 fn main() -> std::io::Result<()> {
     let mut file = File::create("/tmp/altctrl.serial")?;
@@ -20,14 +14,20 @@ fn main() -> std::io::Result<()> {
     for line in stdin.lock().lines() {
         // println!("Input received: {}", line.unwrap());
         match line {
-            Ok(command) => {
-                match command.as_ref() {
-                    "print" => {println!("Hullo!!!! :)");},
-                    "yeet" => {println!("who is ligma?");},
-                    _ => {println!("NANI THE FUCK???");},
+            Ok(command) => match command.as_ref() {
+                "print" => {
+                    println!("Hullo!!!! :)");
+                }
+                "yeet" => {
+                    println!("who is ligma?");
+                }
+                _ => {
+                    println!("NANI THE FUCK???");
                 }
             },
-            _ => {println!("*** OH FUCK!!! ***");},
+            _ => {
+                println!("*** OH FUCK!!! ***");
+            }
         }
     }
     Ok(())

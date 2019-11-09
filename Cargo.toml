@@ -17,8 +17,12 @@ name = "gui_lib"
 path = "src/gui/gui_lib.rs"
 
 [[bin]]
-name = "altctrl"
-path = "src/main.rs"
+name = "chungo"
+path = "src/chungo.rs"
+
+[[bin]]
+name = "fatkhiyev"
+path = "src/fatkhiyev.rs"
 
 [[bin]]
 name = "garfanzo"

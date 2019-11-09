@@ -22,9 +22,8 @@ pub fn destroy_win(win: WINDOW) {
 }
 
 pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>) {
-    let mainwindow = "mainwindow".to_string();
-    match window.to_string() {
-        mainwindow => {
+    match window.as_ref() {
+        "mainwindow" => {
             mvprintw(2, 0, "You idiot! Don't delete the main window!");
         },
         _ => {

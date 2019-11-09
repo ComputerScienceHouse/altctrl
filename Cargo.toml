@@ -1,7 +1,7 @@
 [package]
 name = "gddimagine2020-altctrl-deathpanel"
 version = "0.1.0"
-authors = ["joseph <josephbgerber@gmail.com>"]
+authors = ["joseph <josephbgerber@gmail.com>", "willnilges <will.nilges@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -10,3 +10,7 @@ edition = "2018"
 bytes = "0.4.12"
 serialport = "3.3.0"
 ncurses = "5.99.0"
+
+[lib]
+name = "gui_lib"
+path = "src/gui/gui_lib.rs"

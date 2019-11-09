@@ -1,10 +1,5 @@
-use serde::{Serialize, Deserialize};
-// use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-// use crate::i2c;
-// use std::sync::mpsc::Sender;
-
-// gui stuff
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NewWindow {
     pub id: String,
@@ -26,15 +21,15 @@ pub enum Button {
 
 // Serial stuff... well, it's all serial stuff.
 #[derive(Serialize, Deserialize, Debug)]
-enum IncomingMsg {
+pub enum IncomingMsg {
     CreateWindow(NewWindow),
-    DestroyWindow(u32),
+    DestroyWindow(String),
     On(Button),
     Off(Button),
 }
 
 #[derive(Serialize, Debug)]
-enum OutgoingMsg {
+pub enum OutgoingMsg {
     Pressed(Button),
     Released(Button),
 }

@@ -21,16 +21,19 @@ pub fn destroy_win(win: WINDOW) {
     delwin(win);
 }
 
-pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>) {
+pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer: &mut Vec<String>) {
     match window.as_ref() {
         "mainwindow" => {
-            mvprintw(2, 0, "You idiot! Don't delete the main window!");
+            logbuffer.insert(0, "You idiot! Don't delete the main window!".to_string());
+            showlog(&logbuffer);
         },
         _ => {
             match windows.get(&window) {
                 Some(&win) => {
                     destroy_win(win);
                     windows.remove(&window);
+                    logbuffer.insert(0, format!("{} Destroyed.", window).to_string());
+                    showlog(&logbuffer);
                 },
                 _ => {
                     mvprintw(2, 0, "Invalid window name!");
@@ -38,9 +41,6 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>) {
             }
         }
     }
-    
-
-//    let win = windows.get(&window).unwrap();
 }
 
 pub fn put_pos(start_y: i32, start_x: i32) {
@@ -86,7 +86,8 @@ pub fn put_alert(x_loc: i32,
                  y_dim: i32,
                  name: &str,
                  message: &str,
-                 windows: &mut HashMap<String,WINDOW>) {
+                 windows: &mut HashMap<String,WINDOW>,
+                 logbuffer: &mut Vec<String>) {
     if !windows.contains_key(name){
     let mut max_x = 0;
     let mut max_y = 0;
@@ -106,7 +107,6 @@ pub fn put_alert(x_loc: i32,
             start_x = max_x;
         },
     }
-
     let win = newwin((y_dim)+2, (x_dim)+2, start_y, start_x);
     windows.insert(name.to_string(), win);
     if message.len() > (x_dim as usize) {
@@ -132,7 +132,9 @@ pub fn put_alert(x_loc: i32,
     mvprintw(start_y, start_x+1, &title);
     attroff(A_BOLD());
     } else {
-        mvprintw(6, 0, "Hey! This name is already taken!");
+        // mvprintw(6, 0, "Hey! This name is already taken!");
+        logbuffer.insert(0, "Hey! This name is already taken!".to_string());
+        showlog(&logbuffer);
     }
 }
 
@@ -142,7 +144,6 @@ pub fn showlog(logbuffer: &Vec<String>) {
         mv(i,0);
         clrtoeol();
     }
-
     mv(0,0);
     for i in (0..5).rev() {
         addstr(logbuffer.get(i).unwrap());

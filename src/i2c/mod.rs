@@ -2,17 +2,12 @@
 
 use std::sync::mpsc::Sender;
 
-use serde::{Serialize, Deserialize};
+//use serde::{Serialize, Deserialize};
 
-use crate::Event;
+use crate::event::Event;
 
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
-pub enum Button {
-    B1,
-    B2,
-    B3,
-    B4,
-}
+use crate::protocol::*;
+
 
 #[derive(Clone, Debug)]
 pub enum I2CEvent {
@@ -22,7 +17,7 @@ pub enum I2CEvent {
 
 
 pub struct I2CStruct {
-    tx: Sender<Event>
+    pub tx: Sender<Event>
 }
 
 pub fn initialize(tx: Sender<Event>) -> I2CStruct {

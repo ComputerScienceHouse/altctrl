@@ -2,17 +2,15 @@
 
 use std::sync::mpsc;
 use std::thread;
+use event::*;
+use gui::GuiEvent;
 
+pub mod protocol;
 mod gui;
 mod i2c;
 mod serial;
+mod event;
 
-#[derive(Clone, Debug)]
-pub enum Event {
-    I2C(i2c::I2CEvent),
-    Serial(serial::SerialEvent),
-    Gui(gui::GuiEvent),
-}
 
 fn main() {
     let (tx, rx) = mpsc::channel();
@@ -21,9 +19,9 @@ fn main() {
 
     let clone_tx = tx.clone();
 
-    thread::spawn(move || {
+    /*thread::spawn(move || {
         serial::launch(clone_tx, serial_rx);
-    });
+    });*/
 
     let clone_tx = tx.clone();
 
@@ -33,6 +31,8 @@ fn main() {
 
     let mut i2c_struct = i2c::initialize(tx.clone());
 
+    tx.send(Event::Gui(GuiEvent::Log("Hello there!".to_string()))).unwrap();
+
     loop {
         for event in rx.iter() {
             match event {
@@ -41,5 +41,6 @@ fn main() {
                 Event::Gui(gui_event) => gui_tx.send(gui_event).unwrap(),
             }
         }
+        
     }
 }

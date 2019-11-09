@@ -4,25 +4,9 @@ use std::io;
 use std::io::{Write, BufRead, BufReader};
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
-use serde::{Serialize, Deserialize};
 
-use crate::Event;
-use crate::i2c::{Button};
-use crate::gui::{NewWindow};
-
-#[derive(Deserialize, Debug)]
-enum IncomingMsg {
-    CreateWindow(NewWindow),
-    DestroyWindow(u32),
-    On(Button),
-    Off(Button),
-}
-
-#[derive(Serialize, Debug)]
-enum OutgoingMsg {
-    Pressed(Button),
-    Released(Button),
-}
+use crate::event::Event;
+use crate::protocol::{NewWindow,Button};
 
 #[derive(Clone, Debug)]
 pub enum SerialEvent {
@@ -30,7 +14,7 @@ pub enum SerialEvent {
     Released(Button),
 }
 
-const PORT: &str = "/dev/serial0";
+const PORT: &str = "/dev/zero";
 
 pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
     match serialport::open(PORT) {

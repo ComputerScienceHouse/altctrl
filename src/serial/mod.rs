@@ -7,10 +7,9 @@ use std::thread;
 use serde::{Serialize, Deserialize};
 
 use crate::Event;
-use crate::i2c::{Button};
-use crate::gui::{NewWindow};
+use crate::protocol::{NewWindow,Button};
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 enum IncomingMsg {
     CreateWindow(NewWindow),
     DestroyWindow(u32),

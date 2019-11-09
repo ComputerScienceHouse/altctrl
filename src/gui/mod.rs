@@ -1,31 +1,16 @@
 extern crate ncurses;
 extern crate gui_lib;
 
+
 use std::collections::HashMap;
 use std::sync::mpsc::{Sender, Receiver};
-use serde::Deserialize;
+// use serde::Deserialize;
 use ncurses::*;
 
+
 use crate::Event;
-
-#[derive(Clone, Debug, Deserialize)]
-pub struct NewWindow {
-    id: String,
-    content: String,
-    x_pos: i32,
-    y_pos: i32,
-    width: i32,
-    height: i32,
-}
-
-#[derive(Clone, Debug)]
-pub enum GuiEvent{
-    CreateWindow(NewWindow),
-    DestroyWindow(String),
-    Log(String),
-}
-
 use gui_lib::*;
+use crate::protocol::*;
 
 pub fn launch(tx: Sender<Event>, rx: Receiver<GuiEvent>)
 {

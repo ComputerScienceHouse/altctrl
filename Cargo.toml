@@ -25,9 +25,9 @@ name = "chungo"
 path = "src/chungo.rs"
 
 [[bin]]
-name = "fatkhiyev"
-path = "src/fatkhiyev.rs"
-
-[[bin]]
 name = "garfanzo"
 path = "src/garfanzo.rs"
+
+[[bin]]
+name = "fatkhiyev"
+path = "src/fatkhiyev.rs"

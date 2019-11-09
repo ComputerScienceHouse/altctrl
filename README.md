@@ -10,4 +10,4 @@ The general idea is that we're going to have several co-op™ minigames for peop
 
  - `ncurses`
  - `ncurses-dev`
- - `libudev`
+ - `libudev` (might be included in `systemd-devel`)

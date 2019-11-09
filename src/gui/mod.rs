@@ -1,8 +1,9 @@
 extern crate ncurses;
 extern crate gui_lib;
 
-use ncurses::*;
+use std::collections::HashMap;
 use std::sync::mpsc::Receiver;
+use ncurses::*;
 use crate::types::GuiMsg;
 use gui_lib::*;
 
@@ -25,7 +26,7 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
     //mvprintw(LINES() - 2, 0, &INSTRUCTIONS);
     refresh();
 
-    let mut windows: Vec<WINDOW> = Vec::new();
+    let mut windows: std::collections::HashMap<String, WINDOW> = HashMap::new();
 
     /* Get the screen bounds. */
     let mut max_x = 0;
@@ -39,7 +40,7 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
     /* Start in the center. */
     let mut start_y = (max_y - window_height) / 2;
     let mut start_x = (max_x - window_width) / 2;
-    let mut win = create_win(start_y, start_x, window_width, window_height);
+    let mut win = create_win("mainwindow".to_string(), start_y, start_x, window_width, window_height, &mut windows);
 
     let mut ch = getch();
     while ch != KEY_F(1) {
@@ -47,25 +48,46 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
             KEY_LEFT => {
                 start_x -= 1;
                 destroy_win(win);
-                win = create_win(start_y, start_x, window_width, window_height);
+                win = create_win("mainwindow".to_string(), start_y, start_x, window_width, window_height, &mut windows);
             },
             KEY_RIGHT => {
                 start_x += 1;
                 destroy_win(win);
-                win = create_win(start_y, start_x, window_width, window_height);
-            },
+                win = create_win("mainwindow".to_string(), start_y, start_x, window_width, window_height, &mut windows);            },
             KEY_UP => {
                 start_y -= 1;
                 destroy_win(win);
-                win = create_win(start_y, start_x, window_width, window_height);
-            },
+                win = create_win("mainwindow".to_string(), start_y, start_x, window_width, window_height, &mut windows);            },
             KEY_DOWN => {
                 start_y += 1;
                 destroy_win(win);
-                win = create_win(start_y, start_x, window_width, window_height);
+                win = create_win("mainwindow".to_string(), start_y, start_x, window_width, window_height, &mut windows);
             },
             99 => { // 'c' -> Clear
                 clear();
+            },
+            101 => { // 'e' -> Eliminate (window)
+                mv(1,0);
+                addstr("Enter window name: ");
+                let mut s = String::new();
+                ch = getch();
+                while ch != 10 {
+                    if ch == 263 {
+                        //Delete character
+                        s.pop();
+                        mv(1,0);
+                        clrtoeol();
+                        addstr("Enter window name: ");
+                        addstr(&s);
+                    } else {
+                        s.push(ch as u8 as char);
+                        addstr(&(ch as u8 as char).to_string());        
+                    }                    
+                    ch = getch();
+                }
+                close_win(s, &mut windows);
+                mv(1,0);
+                clrtoeol();
             },
             103 => { // 'g' -> Move window
                 mv(1, 0);
@@ -111,12 +133,39 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                 clrtoeol();
 
             },
-            109 => { // 'm' -> Display message window
+            108 => { // 'l' -> List all windows.
                 mv(1,0);
-                clrtoeol();
+                for windowname in windows.keys() {
+                    addstr(windowname);
+                    addstr("\n");
+                }
+            },
+            109 => { // 'm' -> Display message window
                 mv(2,0);
                 clrtoeol();
+                mv(3,0);
+                clrtoeol();
                 mv(1,0);
+                clrtoeol();
+                addstr("Enter window name: ");
+                let mut name = String::new();
+                ch = getch();
+                while ch != 10 {
+                    if ch == 263 {
+                        //Delete character
+                        name.pop();
+                        mv(1,0);
+                        clrtoeol();
+                        addstr("Enter window name: ");
+                        addstr(&name);
+                    } else {
+                        name.push(ch as u8 as char);
+                        addstr(&(ch as u8 as char).to_string());        
+                    }                    
+                    ch = getch();
+                }
+
+                mv(2,0);
                 addstr("Enter message: ");
                 let mut s = String::new();
                 ch = getch();
@@ -136,7 +185,7 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                 }
 
                 // DIMENSION CODE
-                mv(2, 0);
+                mv(3, 0);
                 clrtoeol();
                 addstr("Enter x dimension: ");
                 let mut x = String::new();
@@ -151,9 +200,9 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                     Ok(n) => x_i32 = n,
                     Err(_e) => {
                         x_i32 = 0;
-                        mv(3,0);
-                        addstr("Invalid dimension entered. ");
-                        mv(4,0);
+                        // mv(3,0);
+                        addstr(" Invalid dimension entered. ");
+                        // mv(4,0);
 
                     },
                 }
@@ -171,14 +220,15 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                     Ok(n) => y_i32 = n,
                     Err(_e) => {
                         y_i32 = 0;
-                        addstr("Invalid dimension entered. ");
+                        addstr(" Invalid dimension entered. ");
+                        // mv(4,0);
                     },
                 }
 
                 //POSITION CODE
-                mv(3, 0);
+                // mv(4, 0);
                 clrtoeol();
-                addstr("Enter x position: ");
+                addstr(" -> Enter x position: ");
                 let mut x = String::new();
                 ch = getch();
                 while ch != 10 {
@@ -192,7 +242,7 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                     Err(_e) => {
                         x_i32_pos = 0;
                         mv(3,0);
-                        addstr("Invalid position entered. ");
+                        addstr(" Invalid position entered. ");
                         mv(4,0);
                     },
                 }
@@ -210,11 +260,12 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                     Ok(n) => y_i32_pos = n,
                     Err(_e) => {
                         y_i32_pos = 0;
-                        addstr("Invalid position entered. ");
+                        addstr(" Invalid position entered. ");
+                        mv(5,0);
                     },
                 }
 
-                put_alert(x_i32_pos, y_i32_pos, x_i32, y_i32, &s);
+                put_alert(x_i32_pos, y_i32_pos, x_i32, y_i32, &name, &s, &mut windows);
 
                 mv(1,0);
                 clrtoeol();
@@ -280,9 +331,9 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
         if start_y == 0 { start_y = max_y-2; }
         if start_y == max_y-1 { start_y = 1; }
 
-        if start_x == 1 && start_y == 1 {
+        /*if start_x == 1 && start_y == 1 {
             put_alert(-1, -1, 30, 10, "The quick brown fox jumps over the lazy dog. and actually, I believe you'll find that it's pronounced whomstved... What is ligma? How did I get this disease? What are my options?");
-        }
+        }*/
     }
 
     endwin();

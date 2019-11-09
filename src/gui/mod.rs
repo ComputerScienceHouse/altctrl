@@ -25,6 +25,8 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
     //mvprintw(LINES() - 2, 0, &INSTRUCTIONS);
     refresh();
 
+    let mut windows: Vec<WINDOW> = Vec::new();
+
     /* Get the screen bounds. */
     let mut max_x = 0;
     let mut max_y = 0;
@@ -40,30 +42,24 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
     let mut win = create_win(start_y, start_x, window_width, window_height);
 
     let mut ch = getch();
-    while ch != KEY_F(1)
-    {
-        match ch
-        {
-            KEY_LEFT =>
-            {
+    while ch != KEY_F(1) {
+        match ch {
+            KEY_LEFT => {
                 start_x -= 1;
                 destroy_win(win);
                 win = create_win(start_y, start_x, window_width, window_height);
             },
-            KEY_RIGHT =>
-            {
+            KEY_RIGHT => {
                 start_x += 1;
                 destroy_win(win);
                 win = create_win(start_y, start_x, window_width, window_height);
             },
-            KEY_UP =>
-            {
+            KEY_UP => {
                 start_y -= 1;
                 destroy_win(win);
                 win = create_win(start_y, start_x, window_width, window_height);
             },
-            KEY_DOWN =>
-            {
+            KEY_DOWN => {
                 start_y += 1;
                 destroy_win(win);
                 win = create_win(start_y, start_x, window_width, window_height);
@@ -76,7 +72,7 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                 clrtoeol();
                 mv(2, 0);
                 clrtoeol();
-                addstr("Enter x:");
+                addstr("Enter x: ");
                 let mut x = String::new();
 
                 ch = getch();
@@ -93,7 +89,7 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                     },
                 }
 
-                addstr(" | Enter y:");
+                addstr(" | Enter y: ");
                 let mut y = String::new();
                 ch = getch();
                 while ch != 10 {
@@ -115,25 +111,34 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                 clrtoeol();
 
             },
-            109 => { // Display alert
+            109 => { // 'm' -> Display message window
                 mv(1,0);
                 clrtoeol();
                 mv(2,0);
                 clrtoeol();
                 mv(1,0);
-                addstr("Enter alert message: ");
+                addstr("Enter message: ");
                 let mut s = String::new();
                 ch = getch();
                 while ch != 10 {
-                    s.push(ch as u8 as char);
-                    addstr(&(ch as u8 as char).to_string());
+                    if ch == 263 {
+                        //Delete character
+                        s.pop();
+                        mv(1,0);
+                        clrtoeol();
+                        addstr("Enter message: ");
+                        addstr(&s);
+                    } else {
+                        s.push(ch as u8 as char);
+                        addstr(&(ch as u8 as char).to_string());        
+                    }                    
                     ch = getch();
                 }
 
                 // DIMENSION CODE
                 mv(2, 0);
                 clrtoeol();
-                addstr("Enter x dimension:");
+                addstr("Enter x dimension: ");
                 let mut x = String::new();
                 ch = getch();
                 while ch != 10 {
@@ -147,13 +152,13 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                     Err(_e) => {
                         x_i32 = 0;
                         mv(3,0);
-                        addstr("Invalid dimension entered.");
+                        addstr("Invalid dimension entered. ");
                         mv(4,0);
 
                     },
                 }
 
-                addstr(" | Enter y dimension:");
+                addstr(" | Enter y dimension: ");
                 let mut y = String::new();
                 ch = getch();
                 while ch != 10 {
@@ -166,14 +171,14 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                     Ok(n) => y_i32 = n,
                     Err(_e) => {
                         y_i32 = 0;
-                        addstr("Invalid dimension entered.");
+                        addstr("Invalid dimension entered. ");
                     },
                 }
 
                 //POSITION CODE
                 mv(3, 0);
                 clrtoeol();
-                addstr("Enter x position:");
+                addstr("Enter x position: ");
                 let mut x = String::new();
                 ch = getch();
                 while ch != 10 {
@@ -187,13 +192,12 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                     Err(_e) => {
                         x_i32_pos = 0;
                         mv(3,0);
-                        addstr("Invalid dimension entered.");
+                        addstr("Invalid position entered. ");
                         mv(4,0);
-
                     },
                 }
 
-                addstr(" | Enter y position:");
+                addstr(" | Enter y position: ");
                 let mut y = String::new();
                 ch = getch();
                 while ch != 10 {
@@ -206,9 +210,9 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                     Ok(n) => y_i32_pos = n,
                     Err(_e) => {
                         y_i32_pos = 0;
-                        addstr("Invalid dimension entered.");
+                        addstr("Invalid position entered. ");
                     },
-                } 
+                }
 
                 put_alert(x_i32_pos, y_i32_pos, x_i32, y_i32, &s);
 
@@ -222,12 +226,12 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                 clrtoeol();
 
             },
-            114 => { // Resize main window
+            114 => { // 'r' -> Resize main window
                 mv(1, 0);
                 clrtoeol();
                 mv(2, 0);
                 clrtoeol();
-                addstr("Enter x:");
+                addstr("Enter x: ");
                 let mut x = String::new();
 
                 ch = getch();
@@ -240,11 +244,11 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                     Ok(n) => window_width = n,
                     Err(_e) => {
                         window_width = window_width;
-                        addstr("Invalid position.");
+                        addstr("Invalid position. ");
                     },
                 }
 
-                addstr(" | Enter y:");
+                addstr(" | Enter y: ");
                 let mut y = String::new();
                 ch = getch();
                 while ch != 10 {
@@ -256,7 +260,7 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
                     Ok(n) => window_height = n,
                     Err(_e) => {
                         window_height = window_height;
-                        addstr("Invalid position.");
+                        addstr("Invalid position. ");
                     },
                 }
                 mv(1, 0);
@@ -266,8 +270,6 @@ pub fn launch(_gui_rx: Receiver<GuiMsg>)
             },
             _ => { }
         }
-
-
 
         mvprintw(0, 0, "Use the arrow keys to move");
         put_pos(start_x, start_y);

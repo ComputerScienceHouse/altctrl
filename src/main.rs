@@ -10,7 +10,6 @@ mod protocol;
 mod gui;
 mod i2c;
 
-
 use shared::{Event, SerialEvent};
 
 const PORT: &str = "/dev/serial0";

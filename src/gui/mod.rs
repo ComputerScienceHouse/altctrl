@@ -68,6 +68,8 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<GuiEvent>)
             GuiEvent::Log(log_event) => {
                 logbuffer.insert(0, log_event);
                 showlog(&logbuffer);
+                logbuffer.insert(0, "event received!".to_string());
+                showlog(&logbuffer);
                 // dbg!("LOG EVENT RECEIVED!");
             }
         }

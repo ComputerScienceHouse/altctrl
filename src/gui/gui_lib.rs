@@ -149,15 +149,16 @@ pub fn showlog(logbuffer: &Vec<String>) {
         addstr(logbuffer.get(i).unwrap());
         addstr("\n");
     }
-    //Keep commands label present...
-    mv(4, COLS() - 9);
-    clrtoeol();
-    mv(4, COLS() - 8);
-    attron(A_BOLD());
-    addstr("Commands");
-    mv(6,COLS()-5);
-    addstr("Input");
-    attroff(A_BOLD());
-    mv(3,COLS()-8);
-    clrtoeol();
+    mv(0,0);
+    // //Keep commands label present...
+    // mv(4, COLS() - 9);
+    // clrtoeol();
+    // mv(4, COLS() - 8);
+    // attron(A_BOLD());
+    // addstr("Commands");
+    // mv(6,COLS()-5);
+    // addstr("Input");
+    // attroff(A_BOLD());
+    // mv(3,COLS()-8);
+    // clrtoeol();
 }

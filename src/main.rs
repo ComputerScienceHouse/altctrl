@@ -32,7 +32,13 @@ fn main() {
     let mut i2c_struct = i2c::initialize(tx.clone());
 
     tx.send(Event::Gui(GuiEvent::Log("Hello there!".to_string()))).unwrap();
-
+    tx.send(Event::Gui(GuiEvent::Log("I am a boy".to_string()))).unwrap();
+    tx.send(Event::Gui(GuiEvent::Log("I have ligma".to_string()))).unwrap();
+    tx.send(Event::Gui(GuiEvent::Log("And herpes.".to_string()))).unwrap();
+    tx.send(Event::Gui(GuiEvent::Log("You might want to exit.".to_string()))).unwrap();
+    tx.send(Event::Gui(GuiEvent::Log("Like... NOW!".to_string()))).unwrap();
+    tx.send(Event::Gui(GuiEvent::Log("too late...".to_string()))).unwrap(); 
+    
     loop {
         for event in rx.iter() {
             match event {
@@ -41,6 +47,5 @@ fn main() {
                 Event::Gui(gui_event) => gui_tx.send(gui_event).unwrap(),
             }
         }
-        
     }
 }

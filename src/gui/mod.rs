@@ -58,14 +58,13 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<GuiEvent>)
     let mut start_y = (max_y - window_height) / 2;
     let mut start_x = (max_x - window_width) / 2;
     let mut win = create_win("mainwindow".to_string(), start_y, start_x, window_width, window_height, &mut windows);
-    
     for message in rx.iter() {
         match message {
             GuiEvent::CreateWindow(new_window) => {
-                put_alert(new_window.x_pos, new_window.y_pos, new_window.width, new_window.height, &new_window.id, &new_window.content, &mut windows);
+                put_alert(new_window.x_pos, new_window.y_pos, new_window.width, new_window.height, &new_window.id, &new_window.content, &mut windows, &mut logbuffer);
             },
             GuiEvent::DestroyWindow(id) => {
-                close_win(id, &mut windows);
+                close_win(id, &mut windows, &mut logbuffer);
             },
             GuiEvent::Log(log_event) => {
                 logbuffer.insert(0, log_event);

@@ -26,7 +26,7 @@ pub fn put_pos(start_y: i32, start_x: i32) {
     getmaxyx(stdscr(), &mut max_y, &mut max_x);
     mv(LINES() - 4, 0);
     for _i in 0..max_x {
-        addch('-' as u32);
+        addstr("-");
     }
     mv(LINES() - 3, 0);
     clrtoeol();

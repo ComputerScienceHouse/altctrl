@@ -34,12 +34,12 @@ pub enum Devices {
 pub enum IncomingMsg {
     CreateWindow(NewWindow),
     DestroyWindow(String),
-    On(Button),
-    Off(Button),
+    On(Button, Devices),
+    Off(Button, Devices),
 }
 
 #[derive(Serialize, Debug)]
 pub enum OutgoingMsg {
-    Pressed(Button),
-    Released(Button),
+    Pressed(Button, Devices),
+    Released(Button, Devices),
 }

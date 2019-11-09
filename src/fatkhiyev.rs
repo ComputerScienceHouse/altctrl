@@ -20,16 +20,16 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
     thread::spawn(move || {
         for message in rx.iter() {
             match message {
-                SerialEvent::Pressed(button) => stream_tx
+                SerialEvent::Pressed(button, device) => stream_tx
                     .write_all(
-                        serde_json::to_string(&OutgoingMsg::Pressed(button))
+                        serde_json::to_string(&OutgoingMsg::Pressed(button, device))
                             .unwrap()
                             .as_bytes(),
                     )
                     .unwrap(),
-                SerialEvent::Released(button) => stream_tx
+                SerialEvent::Released(button, device) => stream_tx
                     .write_all(
-                        serde_json::to_string(&OutgoingMsg::Released(button))
+                        serde_json::to_string(&OutgoingMsg::Released(button, device))
                             .unwrap()
                             .as_bytes(),
                     )
@@ -52,8 +52,8 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
                         Event::Gui(gui::GuiEvent::CreateWindow(new_window))
                     }
                     IncomingMsg::DestroyWindow(id) => Event::Gui(gui::GuiEvent::DestroyWindow(id)),
-                    IncomingMsg::On(button) => Event::I2C(i2c::I2CEvent::On(button)),
-                    IncomingMsg::Off(button) => Event::I2C(i2c::I2CEvent::Off(button)),
+                    IncomingMsg::On(button, device) => Event::I2C(i2c::I2CEvent::On(button, device)),
+                    IncomingMsg::Off(button, device) => Event::I2C(i2c::I2CEvent::Off(button, device)),
                 };
 
                 tx.send(event).unwrap();

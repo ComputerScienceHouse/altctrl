@@ -77,9 +77,9 @@ pub fn handle(message: I2CEvent, i2c_struct: &mut I2CStruct) {
                 let bool_test = 1 & (buttons >> x) == 1;
                 if bool_test != state[x]{
                     state[x] = bool_test;
-                    i2c_struct.tx.send(Event::I2C(I2CEvent::On(i2c_struct.button_array[x], dev)));
-                    i2c_struct.tx.send(Event::Serial(SerialEvent::Pressed(i2c_struct.button_array[x])));
-                    i2c_struct.tx.send(Event::I2C(I2CEvent::Off(i2c_struct.button_array[x], dev)));
+                    i2c_struct.tx.send(Event::I2C(I2CEvent::On(i2c_struct.button_array[x], dev))).unwrap();
+                    i2c_struct.tx.send(Event::Serial(SerialEvent::Pressed(i2c_struct.button_array[x], dev))).unwrap();
+                    i2c_struct.tx.send(Event::I2C(I2CEvent::Off(i2c_struct.button_array[x], dev))).unwrap();
                 }
             }
             device.smbus_write_byte_data(constants::OLATB, 0xff).expect("The LED should be reset");

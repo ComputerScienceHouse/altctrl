@@ -4,7 +4,7 @@ use std::thread;
 
 use crate::gui;
 use crate::i2c;
-use crate::protocol::Button;
+use crate::protocol::{Button, Devices};
 
 #[derive(Clone, Debug)]
 pub enum Event {
@@ -15,8 +15,8 @@ pub enum Event {
 
 #[derive(Clone, Debug)]
 pub enum SerialEvent {
-    Pressed(Button),
-    Released(Button),
+    Pressed(Button, Devices),
+    Released(Button, Devices),
 }
 
 pub fn start(interface: fn(Sender<Event>, Receiver<SerialEvent>)) {

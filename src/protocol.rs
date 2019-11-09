@@ -33,7 +33,7 @@ pub enum Devices {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum IncomingMsg {
     CreateWindow(NewWindow),
-    DestroyWindow(u32),
+    DestroyWindow(String),
     On(Button),
     Off(Button),
 }

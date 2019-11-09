@@ -2,13 +2,15 @@
 
 use std::sync::mpsc;
 use std::thread;
+use event::*;
+use gui::GuiEvent;
 
 pub mod protocol;
-pub mod gui;
+mod gui;
 mod i2c;
 mod serial;
+mod event;
 
-use protocol::*;
 
 fn main() {
     let (tx, rx) = mpsc::channel();

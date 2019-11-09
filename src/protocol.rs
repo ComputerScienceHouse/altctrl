@@ -2,17 +2,7 @@ use serde::{Serialize, Deserialize};
 // use serde::Serialize;
 
 // use crate::i2c;
-use crate::serial;
-use std::sync::mpsc::Sender;
-
-
-// main stuff
-#[derive(Clone, Debug)]
-pub enum Event {
-    I2C(I2CEvent),
-    Serial(serial::SerialEvent),
-    Gui(GuiEvent),
-}
+// use std::sync::mpsc::Sender;
 
 // gui stuff
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -25,14 +15,6 @@ pub struct NewWindow {
     pub height: i32,
 }
 
-#[derive(Clone, Debug)]
-pub enum GuiEvent{
-    CreateWindow(NewWindow),
-    DestroyWindow(String),
-    Log(String),
-}
-
-
 // i2c stuff
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum Button {
@@ -42,13 +24,17 @@ pub enum Button {
     B4,
 }
 
-#[derive(Clone, Debug)]
-pub enum I2CEvent {
+// Serial stuff... well, it's all serial stuff.
+#[derive(Serialize, Deserialize, Debug)]
+enum IncomingMsg {
+    CreateWindow(NewWindow),
+    DestroyWindow(u32),
     On(Button),
     Off(Button),
 }
 
-
-pub struct I2CStruct {
-    pub tx: Sender<Event>
+#[derive(Serialize, Debug)]
+enum OutgoingMsg {
+    Pressed(Button),
+    Released(Button),
 }

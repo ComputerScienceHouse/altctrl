@@ -7,10 +7,18 @@ use std::sync::mpsc::{Sender, Receiver};
 // use serde::Deserialize;
 use ncurses::*;
 
-
-use crate::Event;
+// use crate::Event;
 use gui_lib::*;
 use crate::protocol::*;
+use crate::event::Event;
+
+
+#[derive(Clone, Debug)]
+pub enum GuiEvent{
+    CreateWindow(NewWindow),
+    DestroyWindow(String),
+    Log(String),
+}
 
 pub fn launch(tx: Sender<Event>, rx: Receiver<GuiEvent>)
 {

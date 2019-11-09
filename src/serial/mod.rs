@@ -4,24 +4,9 @@ use std::io;
 use std::io::{Write, BufRead, BufReader};
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
-use serde::{Serialize, Deserialize};
 
-use crate::Event;
+use crate::event::Event;
 use crate::protocol::{NewWindow,Button};
-
-#[derive(Serialize, Deserialize, Debug)]
-enum IncomingMsg {
-    CreateWindow(NewWindow),
-    DestroyWindow(u32),
-    On(Button),
-    Off(Button),
-}
-
-#[derive(Serialize, Debug)]
-enum OutgoingMsg {
-    Pressed(Button),
-    Released(Button),
-}
 
 #[derive(Clone, Debug)]
 pub enum SerialEvent {

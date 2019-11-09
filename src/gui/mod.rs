@@ -1,8 +1,13 @@
 extern crate ncurses;
 
 use ncurses::*;
+use std::sync::mpsc::Receiver;
+use crate::types::GuiMsg;
 
-fn main()
+
+const INSTRUCTIONS: &str = "Press F1 to exit. Press 'g' to goto. Press 'm' to make a message.\nPress 'c' to clear. Press 'r' to resize the C U B E.";
+
+pub fn launch(_gui_rx: Receiver<GuiMsg>)
 {
     /* Setup ncurses. */
     initscr();
@@ -17,7 +22,8 @@ fn main()
 
     /* Status/help info. */
     mvprintw(0, 0, "Use the arrow keys to move");
-    mvprintw(LINES() - 1, 0, "Press F1 to exit. Press 'g' to goto. Press 'm' to make a message. Press 'r' to resize the C U B E.");
+    put_pos(0, 0);
+    //mvprintw(LINES() - 2, 0, &INSTRUCTIONS);
     refresh();
 
     /* Get the screen bounds. */
@@ -63,7 +69,10 @@ fn main()
                 destroy_win(win);
                 win = create_win(start_y, start_x, window_width, window_height);
             },
-            103 => { // Move window
+            99 => { // 'c' -> Clear
+                clear();
+            },
+            103 => { // 'g' -> Move window
                 mv(1, 0);
                 clrtoeol();
                 mv(2, 0);
@@ -263,7 +272,6 @@ fn main()
 
         mvprintw(0, 0, "Use the arrow keys to move");
         put_pos(start_x, start_y);
-        mvprintw(LINES() - 1, 0, "Press F1 to exit. Press 'g' to goto. Press 'm' to make a message. Press 'r' to resize the C U B E.");
         ch = getch();
 
         if start_x == 0 { start_x = max_x-2; }
@@ -296,29 +304,49 @@ fn destroy_win(win: WINDOW)
 }
 
 fn put_pos(start_y: i32, start_x: i32) {
-    mv(LINES() -2, 0);
+    let mut max_x = 0;
+    let mut max_y = 0;
+    /* Get the screen bounds. */
+    getmaxyx(stdscr(), &mut max_y, &mut max_x);
+    mv(LINES() - 4, 0);
+    for _i in 0..max_x {
+        addch('-' as u32);
+    }
+    mv(LINES() - 3, 0);
     clrtoeol();
     attron(A_BOLD());
-    mvprintw(LINES() -2, 0, "                    ");
-    mvprintw(LINES() - 2, 0, format!("X: {} Y: {}", start_y, start_x).as_str());
+    mvprintw(LINES() - 3, 0, format!("X: {} Y: {}", start_y, start_x).as_str());
     attroff(A_BOLD());
+    mv(LINES() - 2, 0);
+    clrtoeol();
+    mv(LINES() - 1, 0);
+    clrtoeol();
+    mvprintw(LINES() - 2, 0, &INSTRUCTIONS);
 }
 
 fn put_alert(x_loc: i32, y_loc: i32, x_dim: i32, y_dim: i32, message: &str) {
+
     let mut max_x = 0;
     let mut max_y = 0;
-    if x_loc == -1 && y_loc == -1 {
-        /* Get the screen bounds. */
-        getmaxyx(stdscr(), &mut max_y, &mut max_x);
-    }else {
-        max_x = x_loc;
-        max_y = y_loc;
+    let start_x;
+    let start_y;
+
+    match x_loc+y_loc {
+        -2 => {
+            /* Get the screen bounds. */
+            getmaxyx(stdscr(), &mut max_y, &mut max_x);
+            start_y = max_y / 2;
+            start_x = max_x / 2;
+        },
+        _ => {
+            max_x = x_loc;
+            max_y = y_loc;
+            start_y = max_y;
+            start_x = max_x;
+        },
     }
 
-    let start_y = (max_y - y_dim) / 2;
-    let start_x = (max_x - x_dim) / 2;
     let win = newwin((y_dim)+2, (x_dim)+2, start_y, start_x);
-    //mvprintw(start_y + 1, start_x + 1, message);
     if message.len() > (x_dim as usize)
     {
         let real_x_dim = x_dim as usize;

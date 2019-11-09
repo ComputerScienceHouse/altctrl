@@ -13,10 +13,20 @@ pub struct NewWindow {
 // i2c stuff
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum Button {
+    B0,
     B1,
     B2,
     B3,
     B4,
+    B5,
+    B6,
+    B7,
+}
+
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+pub enum Devices {
+    D1,
+    D2,
 }
 
 // Serial stuff... well, it's all serial stuff.

@@ -38,7 +38,7 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
         }
     });
 
-    let mut buf_reader = BufReader::new(stream_rx);b
+    let mut buf_reader = BufReader::new(stream_rx);
 
     loop {
         let mut content = String::new();

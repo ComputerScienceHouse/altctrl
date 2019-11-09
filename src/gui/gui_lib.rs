@@ -43,6 +43,17 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
     }
 }
 
+pub fn put_base_hud() {
+    let mut max_x = 0;
+    let mut max_y = 0;
+    /* Get the screen bounds. */
+    getmaxyx(stdscr(), &mut max_y, &mut max_x);
+    mv(6, 0);
+    for _i in 0..max_x {
+        addstr("-");
+    }
+}
+
 pub fn put_pos(start_y: i32, start_x: i32) {
     let mut max_x = 0;
     let mut max_y = 0;

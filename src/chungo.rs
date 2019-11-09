@@ -1,34 +1,26 @@
+#![allow(dead_code)]
+
+use gui::GuiEvent;
 use std::sync::mpsc;
-use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 
-use crate::gui;
-use crate::i2c;
-use crate::protocol::{Button, Devices};
+mod gui;
+mod i2c;
+mod protocol;
+mod shared;
 
-#[derive(Clone, Debug)]
-pub enum Event {
-    I2C(i2c::I2CEvent),
-    Serial(SerialEvent),
-    Gui(gui::GuiEvent),
-}
+use shared::Event;
 
-#[derive(Clone, Debug)]
-pub enum SerialEvent {
-    Pressed(Button, Devices),
-    Released(Button, Devices),
-}
-
-pub fn start(interface: fn(Sender<Event>, Receiver<SerialEvent>)) {
+fn main() {
     let (tx, rx) = mpsc::channel();
     let (gui_tx, gui_rx) = mpsc::channel();
     let (serial_tx, serial_rx) = mpsc::channel();
 
     let clone_tx = tx.clone();
 
-    thread::spawn(move || {
-        interface(clone_tx, serial_rx);
-    });
+    /*thread::spawn(move || {
+        serial::launch(clone_tx, serial_rx);
+    });*/
 
     let clone_tx = tx.clone();
 
@@ -37,6 +29,9 @@ pub fn start(interface: fn(Sender<Event>, Receiver<SerialEvent>)) {
     });
 
     let mut i2c_struct = i2c::initialize(tx.clone());
+
+    tx.send(Event::Gui(GuiEvent::Log("Hello there!".to_string())))
+        .unwrap();
 
     loop {
         for event in rx.iter() {

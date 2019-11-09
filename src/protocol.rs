@@ -31,15 +31,15 @@ pub enum Devices {
 
 // Serial stuff... well, it's all serial stuff.
 #[derive(Serialize, Deserialize, Debug)]
-enum IncomingMsg {
+pub enum IncomingMsg {
     CreateWindow(NewWindow),
-    DestroyWindow(u32),
-    On(Button),
-    Off(Button),
+    DestroyWindow(String),
+    On(Button, Devices),
+    Off(Button, Devices),
 }
 
 #[derive(Serialize, Debug)]
-enum OutgoingMsg {
-    Pressed(Button),
-    Released(Button),
+pub enum OutgoingMsg {
+    Pressed(Button, Devices),
+    Released(Button, Devices),
 }

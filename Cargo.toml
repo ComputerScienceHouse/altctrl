@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 serde = {version = "1.0.102", features = ["derive"] }
+serde_json = "1.0"
 bytes = "0.4.12"
 serialport = "3.3.0"
 ncurses = "5.99.0"
@@ -20,9 +21,13 @@ name = "gui_lib"
 path = "src/gui/gui_lib.rs"
 
 [[bin]]
-name = "altctrl"
-path = "src/main.rs"
+name = "chungo"
+path = "src/chungo.rs"
 
 [[bin]]
 name = "garfanzo"
 path = "src/garfanzo.rs"
+
+[[bin]]
+name = "fatkhiyev"
+path = "src/fatkhiyev.rs"

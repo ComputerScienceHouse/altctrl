@@ -4,13 +4,12 @@ extern crate gui_lib;
 
 use std::collections::HashMap;
 use std::sync::mpsc::{Sender, Receiver};
-// use serde::Deserialize;
 use ncurses::*;
 
-// use crate::Event;
+use crate::shared::Event;
+use crate::protocol::NewWindow;
 use gui_lib::*;
-use crate::protocol::*;
-use crate::event::Event;
+
 
 
 #[derive(Clone, Debug)]

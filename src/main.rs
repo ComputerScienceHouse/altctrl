@@ -1,51 +1,52 @@
-#![allow(dead_code)]
+extern crate serialport;
 
-use std::sync::mpsc;
+use std::io;
+use std::io::{Write, BufRead, BufReader};
+use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
-use event::*;
-use gui::GuiEvent;
 
-pub mod protocol;
+mod shared;
+mod protocol;
 mod gui;
 mod i2c;
-mod serial;
-mod event;
 
 
-fn main() {
-    let (tx, rx) = mpsc::channel();
-    let (gui_tx, gui_rx) = mpsc::channel();
-    let (serial_tx, serial_rx) = mpsc::channel();
+use shared::{Event, SerialEvent};
 
-    let clone_tx = tx.clone();
+const PORT: &str = "/dev/serial0";
 
-    /*thread::spawn(move || {
-        serial::launch(clone_tx, serial_rx);
-    });*/
+pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
+    match serialport::open(PORT) {
+        Ok(mut serial_tx) => {
+            let mut serial_rx = BufReader::new(serial_tx.try_clone().unwrap());
 
-    let clone_tx = tx.clone();
+            thread::spawn(move || loop {
+                let mut line = String::new();
 
-    thread::spawn(move || {
-        gui::launch(clone_tx, gui_rx);
-    });
+                match serial_rx.read_line(&mut line) {
+                    Ok(_) => {
+                        // Handle new messages next
+                    }
 
-    let mut i2c_struct = i2c::initialize(tx.clone());
+                    Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
 
-    tx.send(Event::Gui(GuiEvent::Log("Hello there!".to_string()))).unwrap();
-    tx.send(Event::Gui(GuiEvent::Log("I am a boy".to_string()))).unwrap();
-    tx.send(Event::Gui(GuiEvent::Log("I have ligma".to_string()))).unwrap();
-    tx.send(Event::Gui(GuiEvent::Log("And herpes.".to_string()))).unwrap();
-    tx.send(Event::Gui(GuiEvent::Log("You might want to exit.".to_string()))).unwrap();
-    tx.send(Event::Gui(GuiEvent::Log("Like... NOW!".to_string()))).unwrap();
-    tx.send(Event::Gui(GuiEvent::Log("too late...".to_string()))).unwrap(); 
-    
-    loop {
-        for event in rx.iter() {
-            match event {
-                Event::I2C(i2c_event) => i2c::handle(i2c_event, &mut i2c_struct),
-                Event::Serial(serial_event) => serial_tx.send(serial_event).unwrap(),
-                Event::Gui(gui_event) => gui_tx.send(gui_event).unwrap(),
-            }
+                    Err(e) => eprintln!("{:?}", e),
+                }
+            });
+            thread::spawn(move || {
+                for message in rx.iter() {
+                    //serial_tx.write_all(message.serialize().as_bytes()).unwrap();
+                }
+            });
+        }
+
+        Err(e) => {
+            eprintln!("Failed to open \"{}\". Error: {}", PORT, e);
+            ::std::process::exit(1);
         }
     }
+}
+
+fn main() {
+    shared::start(launch);
 }

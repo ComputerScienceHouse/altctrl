@@ -1,10 +1,5 @@
-use serde::{Serialize, Deserialize};
-// use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-// use crate::i2c;
-// use std::sync::mpsc::Sender;
-
-// gui stuff
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NewWindow {
     pub id: String,

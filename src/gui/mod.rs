@@ -18,21 +18,11 @@ pub struct NewWindow {
     height: i32,
 }
 
-#[derive(Clone, Debug, Deserialize)]
-pub struct WindowID {
-    id: String,
-}
-
-#[derive(Clone, Debug, Deserialize)]
-pub struct LogEvent {
-    event: String,
-}
-
 #[derive(Clone, Debug)]
 pub enum GuiEvent{
     CreateWindow(NewWindow),
-    DestroyWindow(WindowID),
-    Log(LogEvent),
+    DestroyWindow(String),
+    Log(String),
 }
 
 use gui_lib::*;
@@ -60,10 +50,7 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<GuiEvent>)
     let mut windows: std::collections::HashMap<String, WINDOW> = HashMap::new();
     // Log buffer to use for keeping track of command output.
     let mut logbuffer: Vec<String> = Vec::new();
-    for _i in 0..5 { logbuffer.push("meme".to_string()); }
-
-    // log("fug".to_string(), &mut logbuffer);
-    logbuffer.insert(0, "fug".to_string());
+    for _i in 0..6 { logbuffer.push(" ".to_string()); }
     showlog(&logbuffer);
 
     /* Get the screen bounds. */
@@ -80,25 +67,18 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<GuiEvent>)
     let mut win = create_win("mainwindow".to_string(), start_y, start_x, window_width, window_height, &mut windows);
     
     for message in rx.iter() {
-
-        let mut ch = getch();
-        if ch != KEY_F(1) {
-            match message {
-                GuiEvent::CreateWindow(new_window) => {
-                    put_alert(new_window.x_pos, new_window.y_pos, new_window.width, new_window.height, &new_window.id, &new_window.content, &mut windows);
-                },
-                GuiEvent::DestroyWindow(id) => {
-                    close_win(id.id, &mut windows);
-                },
-                GuiEvent::Log(log_event) => {
-                    logbuffer.insert(0, log_event.event);
-                }
+        match message {
+            GuiEvent::CreateWindow(new_window) => {
+                put_alert(new_window.x_pos, new_window.y_pos, new_window.width, new_window.height, &new_window.id, &new_window.content, &mut windows);
+            },
+            GuiEvent::DestroyWindow(id) => {
+                close_win(id, &mut windows);
+            },
+            GuiEvent::Log(log_event) => {
+                logbuffer.insert(0, log_event);
             }
-        } else {
-            break;
         }
     }
-
     endwin();
 }
 

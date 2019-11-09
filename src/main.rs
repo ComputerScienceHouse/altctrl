@@ -3,7 +3,7 @@
 use std::sync::mpsc;
 use std::thread;
 
-mod gui;
+pub mod gui;
 mod i2c;
 mod serial;
 
@@ -33,6 +33,8 @@ fn main() {
 
     let mut i2c_struct = i2c::initialize(tx.clone());
 
+    tx.send(Event::Gui(gui::GuiEvent::Log("Hello there!".to_string()))).unwrap();
+
     loop {
         for event in rx.iter() {
             match event {
@@ -41,5 +43,6 @@ fn main() {
                 Event::Gui(gui_event) => gui_tx.send(gui_event).unwrap(),
             }
         }
+        
     }
 }

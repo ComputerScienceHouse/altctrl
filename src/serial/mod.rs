@@ -30,7 +30,7 @@ pub enum SerialEvent {
     Released(Button),
 }
 
-const PORT: &str = "/dev/serial0";
+const PORT: &str = "/dev/zero";
 
 pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
     match serialport::open(PORT) {

@@ -21,9 +21,9 @@ fn main() {
 
     let clone_tx = tx.clone();
 
-    thread::spawn(move || {
+    /*thread::spawn(move || {
         serial::launch(clone_tx, serial_rx);
-    });
+    });*/
 
     let clone_tx = tx.clone();
 

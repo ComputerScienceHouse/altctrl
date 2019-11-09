@@ -76,9 +76,16 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<GuiEvent>)
             },
             GuiEvent::Log(log_event) => {
                 logbuffer.insert(0, log_event);
+                showlog(&logbuffer);
+                // dbg!("LOG EVENT RECEIVED!");
             }
+        }
+        let ch = getch();
+        if ch == KEY_F(1) {
+            break;
         }
     }
     endwin();
+    std::process::exit(0);
 }
 

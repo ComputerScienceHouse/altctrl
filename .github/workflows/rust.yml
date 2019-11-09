@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install
-      run: sudo apt-get install libudev-dev
+      run: sudo apt-get install -y libudev-dev ncurses-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests

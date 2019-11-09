@@ -21,7 +21,7 @@ pub enum Button {
 
 // Serial stuff... well, it's all serial stuff.
 #[derive(Serialize, Deserialize, Debug)]
-enum IncomingMsg {
+pub enum IncomingMsg {
     CreateWindow(NewWindow),
     DestroyWindow(u32),
     On(Button),
@@ -29,7 +29,7 @@ enum IncomingMsg {
 }
 
 #[derive(Serialize, Debug)]
-enum OutgoingMsg {
+pub enum OutgoingMsg {
     Pressed(Button),
     Released(Button),
 }

@@ -1,4 +1,4 @@
-pub const I2C_EXPANDER_1: u16 = 0x20;
+pub const I2C_EXPANDER_0: u16 = 0x20;
 
 pub const GPINTAEN: u8 = 0x04;
 pub const GPINTBEN: u8 = 0x05;

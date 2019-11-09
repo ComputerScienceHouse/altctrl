@@ -33,7 +33,6 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
                     Err(e) => eprintln!("{:?}", e),
                 }
             });
-
             thread::spawn(move || {
                 for message in rx.iter() {
                     //serial_tx.write_all(message.serialize().as_bytes()).unwrap();

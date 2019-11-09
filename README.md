@@ -11,3 +11,12 @@ The general idea is that we're going to have several co-op™ minigames for peop
  - `ncurses`
  - `ncurses-dev`
  - `libudev` (might be included in `systemd-devel`)
+
+### Garfanzo:
+Garfanzo™ is our debug program.
+
+To properly run Garfanzo, you need to pipe the output to another tty. You can do this from a desktop session like so:
+
+`cargo run --bin garfanzo > /dev/pts/0`
+
+you'll have to look in /dev/pts with multiple terminals open to see what is available.

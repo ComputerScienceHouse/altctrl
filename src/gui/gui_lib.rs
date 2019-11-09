@@ -1,7 +1,7 @@
 use ncurses::*;
 use std::collections::HashMap;
 
-const INSTRUCTIONS: &str = "Press F1 to exit. Press 'g' to goto. Press 'm' to make a message.\nPress 'c' to clear. Press 'r' to resize the C U B E.";
+const INSTRUCTIONS: &str = "Use arrow keys to move. Press F1 to exit. Press 'g' to goto. Press 'm' to make a message.\nPress 'l' to list windows. Press 'e' to eliminate a window. Press 'c' to clear. Press 'r' to resize the C U B E.";
 
 pub fn create_win(name: String, start_y: i32,
                   start_x: i32,
@@ -52,8 +52,24 @@ pub fn put_pos(start_y: i32, start_x: i32) {
     for _i in 0..max_x {
         addstr("-");
     }
+    mv(5, 0);
+    for _i in 0..max_x {
+        addstr("-");
+    }
+    //Keep commands window clear
+    mv(4, COLS() - 9);
+    clrtoeol();
+    mv(4, COLS() - 8);
+    attron(A_BOLD());
+    addstr("Commands");
+    mv(6,COLS()-5);
+    addstr("Input");
+    attroff(A_BOLD());
+    mv(3,COLS()-8);
+    clrtoeol();
     mv(LINES() - 3, 0);
     clrtoeol();
+    // Put position
     attron(A_BOLD());
     mvprintw(LINES() - 3, 0, format!("X: {} Y: {}", start_y, start_x).as_str());
     attroff(A_BOLD());
@@ -71,11 +87,11 @@ pub fn put_alert(x_loc: i32,
                  name: &str,
                  message: &str,
                  windows: &mut HashMap<String,WINDOW>) {
+    if !windows.contains_key(name){
     let mut max_x = 0;
     let mut max_y = 0;
     let start_x;
     let start_y;
-
     match x_loc+y_loc {
         -2 => {
             /* Get the screen bounds. */
@@ -111,4 +127,36 @@ pub fn put_alert(x_loc: i32,
     }
     box_(win, 0, 0);
     wrefresh(win);
+    attron(A_BOLD());
+    let title = format!("|{}|", name);
+    mvprintw(start_y, start_x+1, &title);
+    attroff(A_BOLD());
+    } else {
+        mvprintw(6, 0, "Hey! This name is already taken!");
+    }
+}
+
+pub fn showlog(logbuffer: &Vec<String>) {
+    //Update log window...
+    for i in 0..5 {
+        mv(i,0);
+        clrtoeol();
+    }
+
+    mv(0,0);
+    for i in (0..5).rev() {
+        addstr(logbuffer.get(i).unwrap());
+        addstr("\n");
+    }
+    //Keep commands label present...
+    mv(4, COLS() - 9);
+    clrtoeol();
+    mv(4, COLS() - 8);
+    attron(A_BOLD());
+    addstr("Commands");
+    mv(6,COLS()-5);
+    addstr("Input");
+    attroff(A_BOLD());
+    mv(3,COLS()-8);
+    clrtoeol();
 }

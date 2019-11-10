@@ -10,7 +10,11 @@ pub struct NewWindow {
     pub height: i32,
 }
 
-// i2c stuff
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+pub enum Device {
+    D0,
+}
+
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum Button {
     B0,
@@ -23,13 +27,7 @@ pub enum Button {
     B7,
 }
 
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
-pub enum Device {
-    D0,
-}
-
-// Serial stuff... well, it's all serial stuff.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum IncomingMsg {
     CreateWindow(NewWindow),
     DestroyWindow(String),
@@ -37,7 +35,7 @@ pub enum IncomingMsg {
     Off(Device, Button),
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum OutgoingMsg {
     Pressed(Device, Button),
     Released(Device, Button),

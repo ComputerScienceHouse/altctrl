@@ -19,22 +19,13 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
 
     thread::spawn(move || {
         for message in rx.iter() {
-            match message {
-                SerialEvent::Pressed(button, device) => stream_tx
-                    .write_all(
-                        serde_json::to_string(&OutgoingMsg::Pressed(button, device))
-                            .unwrap()
-                            .as_bytes(),
-                    )
-                    .unwrap(),
-                SerialEvent::Released(button, device) => stream_tx
-                    .write_all(
-                        serde_json::to_string(&OutgoingMsg::Released(button, device))
-                            .unwrap()
-                            .as_bytes(),
-                    )
-                    .unwrap(),
-            }
+            stream_tx
+                .write_all(
+                    serde_json::to_string(&OutgoingMsg::from(message))
+                        .unwrap()
+                        .as_bytes(),
+                )
+                .unwrap();
         }
     });
 
@@ -46,18 +37,9 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
         match buf_reader.read_line(&mut content) {
             Ok(_) => {
                 let message: IncomingMsg = serde_json::from_str(content.as_ref()).unwrap();
-
-                let event = match message {
-                    IncomingMsg::CreateWindow(new_window) => {
-                        Event::Gui(gui::GuiEvent::CreateWindow(new_window))
-                    }
-                    IncomingMsg::DestroyWindow(id) => Event::Gui(gui::GuiEvent::DestroyWindow(id)),
-                    IncomingMsg::On(button, device) => Event::I2C(i2c::I2CEvent::On(button, device)),
-                    IncomingMsg::Off(button, device) => Event::I2C(i2c::I2CEvent::Off(button, device)),
-                };
-
-                tx.send(event).unwrap();
+                tx.send(Event::from(message)).unwrap();
             }
+
             Err(e) => {
                 let error = format!("{:?}", e);
                 tx.send(Event::Gui(gui::GuiEvent::Log(error))).unwrap();

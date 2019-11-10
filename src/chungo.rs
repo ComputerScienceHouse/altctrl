@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 
-use gui::GuiEvent;
-use std::sync::mpsc;
+use std::io;
+use std::io::{BufRead, BufReader, Write};
+use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 
 mod gui;
@@ -9,37 +10,46 @@ mod i2c;
 mod protocol;
 mod shared;
 
-use shared::Event;
+use protocol::{IncomingMsg, OutgoingMsg};
+use shared::{Event, SerialEvent};
 
-fn main() {
-    let (tx, rx) = mpsc::channel();
-    let (gui_tx, gui_rx) = mpsc::channel();
-    let (serial_tx, serial_rx) = mpsc::channel();
+const PORT: &str = "/dev/serial0";
 
-    let clone_tx = tx.clone();
+pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
+    let mut serial_tx = serialport::open(PORT).expect("Failed to open serialport");
 
-    /*thread::spawn(move || {
-        serial::launch(clone_tx, serial_rx);
-    });*/
-
-    let clone_tx = tx.clone();
+    let serial_rx = serial_tx.try_clone().unwrap();
 
     thread::spawn(move || {
-        gui::launch(clone_tx, gui_rx);
+        for message in rx.iter() {
+            serial_tx
+                .write_all(
+                    serde_json::to_string(&OutgoingMsg::from(message))
+                        .unwrap()
+                        .as_bytes(),
+                )
+                .unwrap();
+        }
     });
 
-    let mut i2c_struct = i2c::initialize(tx.clone());
-
-    tx.send(Event::Gui(GuiEvent::Log("Hello there!".to_string())))
-        .unwrap();
+    let mut buf_reader = BufReader::new(serial_rx);
 
     loop {
-        for event in rx.iter() {
-            match event {
-                Event::I2C(i2c_event) => i2c::handle(i2c_event, &mut i2c_struct),
-                Event::Serial(serial_event) => serial_tx.send(serial_event).unwrap(),
-                Event::Gui(gui_event) => gui_tx.send(gui_event).unwrap(),
+        let mut content = String::new();
+
+        match buf_reader.read_line(&mut content) {
+            Ok(_) => {
+                let message: IncomingMsg = serde_json::from_str(content.as_ref()).unwrap();
+                tx.send(Event::from(message)).unwrap();
             }
+
+            Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
+
+            Err(e) => eprintln!("{:?}", e),
         }
     }
+}
+
+fn main() {
+    shared::start(launch);
 }

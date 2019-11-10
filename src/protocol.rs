@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::shared::SerialEvent;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NewWindow {
     pub id: String,
@@ -39,4 +41,13 @@ pub enum IncomingMsg {
 pub enum OutgoingMsg {
     Pressed(Device, Button),
     Released(Device, Button),
+}
+
+impl From<SerialEvent> for OutgoingMsg {
+    fn from(event: SerialEvent) -> Self {
+        match event {
+            SerialEvent::Pressed(device, button) => OutgoingMsg::Pressed(device, button),
+            SerialEvent::Released(device, button) => OutgoingMsg::Released(device, button),
+        }
+    }
 }

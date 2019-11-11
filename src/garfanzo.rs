@@ -25,34 +25,97 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
     //tx.send(Event::Gui(gui::GuiEvent::CreateWindow(window))).unwrap();
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
-        // println!("Input received: {}", line.unwrap());
         match line {
-            Ok(command) => match command.as_ref() {
-                "print" => {
-                    // println!("Hullo!!!! :)");
-                    tx.send(Event::Gui(gui::GuiEvent::Log("Hello there!".to_string()))).unwrap();
-                }
-                "yeet" => {
-                    // println!("who is ligma?");
-                    tx.send(Event::Gui(gui::GuiEvent::Log("Who is Ligma?".to_string()))).unwrap();
-                },
-                "clear" => {
-                    tx.send(Event::Gui(gui::GuiEvent::Clear())).unwrap();
-                },
-                "leave" => {
-                    tx.send(Event::Gui(gui::GuiEvent::Log("Later brother!".to_string()))).unwrap();
-                    std::process::exit(0);
-                },
-                "window" => {
-                    tx.send(Event::Gui(gui::GuiEvent::Log("Creating window...".to_string()))).unwrap();
-                    let window = protocol::NewWindow {id: "Win01".to_string(), content: "Hello there my funky groovy dude".to_string(), x_pos: 20, y_pos: 20, width: 20, height: 20};
-                    tx.send(Event::Gui(gui::GuiEvent::CreateWindow(window))).unwrap();
-                },
-                _ => {
-                    // println!("WHAT??? {}", command);
-                    tx.send(Event::Gui(gui::GuiEvent::Log(command.to_string()))).unwrap();
+            Ok(command) => {
+                let command = command.split("separator").collect::<Vec<&str>>();
+                if command.len() >= 1 {
+                    match command[0].as_ref() {
+                        "log" => {
+                            tx.send(Event::Gui(gui::GuiEvent::Log(command[1].to_string()))).unwrap();
+                        },
+                        "window" => {
+                            match command[1].as_ref() {
+                                "new" => {
+                                    let (
+                                            Some(command[4].parse::<i32>().unwrap()),
+                                            Some(command[5].parse::<i32>().unwrap()),
+                                            Some(command[6].parse::<i32>().unwrap())
+                                        ) = (a, b, c);
+                                    if command.len() == 6 {
+                                        tx.send(
+                                            Event::Gui(
+                                                gui::GuiEvent::Log(
+                                                    "Creating window...".to_string()
+                                                )
+                                            )
+                                        ).unwrap();
+                                        let window = protocol::NewWindow {
+                                            id: command[2].to_string(),
+                                            content: command[3].to_string(),
+                                            x_pos: command[4].parse::<i32>().unwrap(),
+                                            y_pos: command[5].parse::<i32>().unwrap(), 
+                                            width: command[6].parse::<i32>().unwrap(), 
+                                            height: command[7].parse::<i32>().unwrap()
+                                        };
+                                        tx.send(Event::Gui(gui::GuiEvent::CreateWindow(window))).unwrap();    
+                                    }
+                                    
+                                },
+                                "close" => {},
+                                "list" => {},
+                                _ => {
+                                   tx.send(Event::Gui(gui::GuiEvent::Log("Invalid command received. Please enter a window subcommand. (new, close, list)".to_string()))).unwrap();
+                                },
+                            }
+                        },
+                        "clear" => {
+                            
+                        },
+                        "help" => {
+                            tx.send(Event::Gui(gui::GuiEvent::Log("(log, window, clear, help)".to_string()))).unwrap();
+                        },
+                        _ => {
+                            tx.send(Event::Gui(gui::GuiEvent::Log("Invalid command received.".to_string()))).unwrap();
+                        },
+
+                    }
+                } else {
+                    tx.send(Event::Gui(gui::GuiEvent::Log("Invalid command received.".to_string()))).unwrap();
                 }
             },
+            _ => {
+
+            },
+            // match command.as_ref() {
+            //     "log" => {
+            //         let message = stdin.lock().lines().next();
+            //         match message.unwrap() {
+            //             Ok(m) => {
+            //                 tx.send(Event::Gui(gui::GuiEvent::Log(m))).unwrap();
+            //             },
+            //             _ => {
+            //                 tx.send(Event::Gui(gui::GuiEvent::Log("Error parsing log message.".to_string()))).unwrap();
+            //             },
+            //         }
+            //     }
+            //     "yeet" => {
+            //         tx.send(Event::Gui(gui::GuiEvent::Log("Who is Ligma?".to_string()))).unwrap();
+            //     },
+            //     "clear" => {
+            //         tx.send(Event::Gui(gui::GuiEvent::Clear())).unwrap();
+            //     },
+            //     "leave" => {
+            //         tx.send(Event::Gui(gui::GuiEvent::Log("Later brother!".to_string()))).unwrap();
+            //         std::process::exit(0);
+            //     },
+            //     "window" => {
+            //         tx.send(Event::Gui(gui::GuiEvent::Log("Creating window...".to_string()))).unwrap();
+            //         let window = protocol::NewWindow {id: "Win01".to_string(), content: "Hello there my funky groovy dude".to_string(), x_pos: 20, y_pos: 20, width: 20, height: 20};
+            //         tx.send(Event::Gui(gui::GuiEvent::CreateWindow(window))).unwrap();
+            //     },
+            //     _ => {
+            //         tx.send(Event::Gui(gui::GuiEvent::Log(command.to_string()))).unwrap();
+                // }
             _ => {
                 println!("*** OH F*CK!!! ***");
             }

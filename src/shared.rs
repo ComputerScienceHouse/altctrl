@@ -4,13 +4,26 @@ use std::thread;
 
 use crate::gui;
 use crate::i2c;
-use crate::protocol::{Device, Button};
+use crate::protocol::{Button, Device, IncomingMsg};
 
 #[derive(Clone, Debug)]
 pub enum Event {
     I2C(i2c::I2CEvent),
     Serial(SerialEvent),
     Gui(gui::GuiEvent),
+}
+
+impl From<IncomingMsg> for Event {
+    fn from(message: IncomingMsg) -> Self {
+        match message {
+            IncomingMsg::CreateWindow(new_window) => {
+                Event::Gui(gui::GuiEvent::CreateWindow(new_window))
+            }
+            IncomingMsg::DestroyWindow(id) => Event::Gui(gui::GuiEvent::DestroyWindow(id)),
+            IncomingMsg::On(button, device) => Event::I2C(i2c::I2CEvent::On(button, device)),
+            IncomingMsg::Off(button, device) => Event::I2C(i2c::I2CEvent::Off(button, device)),
+        }
+    }
 }
 
 #[derive(Clone, Debug)]

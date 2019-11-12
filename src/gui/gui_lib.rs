@@ -121,7 +121,7 @@ pub fn showlog(logbuffer: &Vec<String>) {
     mv(0,0);
     for i in (0..5).rev() {
         mv(4-(i as i32), 0);
-        addstr(&i.to_string());
+        // addstr(&i.to_string());
         addstr(logbuffer.get(i).unwrap());
         // addstr("\n");
     }

@@ -27,7 +27,7 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
     for line in stdin.lock().lines() {
         match line {
             Ok(command) => {
-                let command = command.split("separator").collect::<Vec<&str>>();
+                let command = command.split(",").collect::<Vec<&str>>();
                 if command.len() >= 1 {
                     match command[0].as_ref() {
                         "log" => {
@@ -36,12 +36,7 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
                         "window" => {
                             match command[1].as_ref() {
                                 "new" => {
-                                    let (
-                                            Some(command[4].parse::<i32>().unwrap()),
-                                            Some(command[5].parse::<i32>().unwrap()),
-                                            Some(command[6].parse::<i32>().unwrap())
-                                        ) = (a, b, c);
-                                    if command.len() == 6 {
+                                    if command.len() == 8 {
                                         tx.send(
                                             Event::Gui(
                                                 gui::GuiEvent::Log(
@@ -61,18 +56,21 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
                                     }
                                     
                                 },
-                                "close" => {},
+                                "close" => {
+                                    let window = command[2].to_string();
+                                    tx.send(Event::Gui(gui::GuiEvent::DestroyWindow(window))).unwrap();    
+                                },
                                 "list" => {},
                                 _ => {
-                                   tx.send(Event::Gui(gui::GuiEvent::Log("Invalid command received. Please enter a window subcommand. (new, close, list)".to_string()))).unwrap();
+                                tx.send(Event::Gui(gui::GuiEvent::Log(format!("Invalid command received. ({}) Please enter a window subcommand. (new, close, list)", command[1]).to_string()))).unwrap();
                                 },
-                            }
+                            }                            
                         },
                         "clear" => {
                             
                         },
                         "help" => {
-                            tx.send(Event::Gui(gui::GuiEvent::Log("(log, window, clear, help)".to_string()))).unwrap();
+                            tx.send(Event::Gui(gui::GuiEvent::Log("(log, window(id, content, x_pos, y_pos, width, height), clear, help)".to_string()))).unwrap();
                         },
                         _ => {
                             tx.send(Event::Gui(gui::GuiEvent::Log("Invalid command received.".to_string()))).unwrap();

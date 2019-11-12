@@ -1,7 +1,10 @@
+// Collection of data sturtures that are used to communicate with clients
+
 use serde::{Deserialize, Serialize};
 
 use crate::shared::SerialEvent;
 
+// New window struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NewWindow {
     pub id: String,
@@ -12,11 +15,13 @@ pub struct NewWindow {
     pub height: i32,
 }
 
+// Represents a device in the system
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum Device {
     D0,
 }
 
+// Represents a port on a device in the system
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum Button {
     B0,
@@ -29,6 +34,7 @@ pub enum Button {
     B7,
 }
 
+// Represents a message coming from the client
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum IncomingMsg {
     CreateWindow(NewWindow),
@@ -37,6 +43,7 @@ pub enum IncomingMsg {
     Off(Device, Button),
 }
 
+// Represents a message that will be sent to the client
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum OutgoingMsg {
     Pressed(Device, Button),

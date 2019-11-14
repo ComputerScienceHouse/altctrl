@@ -15,6 +15,7 @@ pub enum GuiEvent{
     CreateWindow(NewWindow),
     DestroyWindow(String),
     Log(String),
+    List(),
     Clear(),
 }
 
@@ -58,13 +59,23 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<GuiEvent>)
             },
             GuiEvent::Log(log_event) => {
                 logbuffer.insert(0, log_event.to_string());
-                // logbuffer.insert(0, "event received!".to_string());
-                // showlog(&logbuffer);
-                // dbg!("LOG EVENT RECEIVED!");
+            },
+            GuiEvent::List() => {
+                let mut open_windows = String::new();
+                open_windows.push_str("Currently open windows: ");
+                for key in windows.keys() {
+                    open_windows.push_str(key);
+                    open_windows.push_str(", ");
+                }
+                logbuffer.insert(0, open_windows.to_string());
             },
             GuiEvent::Clear() => {
-                clear();
-                showlog(&logbuffer);
+                clear();/*
+                let mut wumbows: std::collections::HashMap<String, WINDOW> = &mut windows;
+                for (key, value) in &windows {
+                    close_win(key.to_string(), &mut windows, &mut logbuffer);
+                }
+                showlog(&logbuffer);*/
             },
         }
         showlog(&logbuffer);

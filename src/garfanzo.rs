@@ -39,11 +39,8 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
                                     if command.len() == 8 {
                                         tx.send(
                                             Event::Gui(
-                                                gui::GuiEvent::Log(
-                                                    "Creating window...".to_string()
-                                                )
-                                            )
-                                        ).unwrap();
+                                            gui::GuiEvent::Log(
+                                                format!("Creating window, \"{}\"", command[2]).to_string()))).unwrap();
                                         let window = protocol::NewWindow {
                                             id: command[2].to_string(),
                                             content: command[3].to_string(),
@@ -60,14 +57,16 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
                                     let window = command[2].to_string();
                                     tx.send(Event::Gui(gui::GuiEvent::DestroyWindow(window))).unwrap();    
                                 },
-                                "list" => {},
+                                "list" => {
+                                    tx.send(Event::Gui(gui::GuiEvent::List())).unwrap();
+                                },
                                 _ => {
                                 tx.send(Event::Gui(gui::GuiEvent::Log(format!("Invalid command received. ({}) Please enter a window subcommand. (new, close, list)", command[1]).to_string()))).unwrap();
                                 },
                             }                            
                         },
                         "clear" => {
-                            
+                            tx.send(Event::Gui(gui::GuiEvent::Clear())).unwrap();
                         },
                         "help" => {
                             tx.send(Event::Gui(gui::GuiEvent::Log("(log, window(id, content, x_pos, y_pos, width, height), clear, help)".to_string()))).unwrap();

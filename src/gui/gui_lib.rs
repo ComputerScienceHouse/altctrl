@@ -30,7 +30,7 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
                 Some(&win) => {
                     destroy_win(win);
                     windows.remove(&window);
-                    logbuffer.insert(0, format!("{} Destroyed.", window).to_string());
+                    logbuffer.insert(0, format!("Window \"{}\" destroyed.", window).to_string());
                     showlog(&logbuffer);
                 },
                 _ => {

@@ -6,18 +6,30 @@ use std::io;
 use std::io::{BufRead, BufReader, Write};
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
+use std::time::Duration;
 
-use altctrl::{Event, SerialEvent};
+use serialport::prelude::*;
+
 use altctrl::protocol::{IncomingMsg, OutgoingMsg};
+use altctrl::{Event, SerialEvent};
 
 // Default serial port location on the raspberry pi
-const PORT: &str = "/dev/serial0";
+const PORT: &str = "/dev/ttyGS0";
 
 // Launch function for an interface module using serial for communication
 pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
     // Open the serial port
-    let mut serial_tx = serialport::open(PORT).expect("Failed to open serialport");
+    let s = SerialPortSettings {
+        baud_rate: 115_200,
+        data_bits: DataBits::Eight,
+        flow_control: FlowControl::None,
+        parity: Parity::None,
+        stop_bits: StopBits::One,
+        timeout: Duration::from_secs(1),
+    };
 
+    let mut serial_tx =
+        serialport::open_with_settings(PORT, &s).expect("Failed to open serialport");
     let serial_rx = serial_tx.try_clone().unwrap();
 
     // Spawn a thread for sending OutgoingMsg to the client over serial

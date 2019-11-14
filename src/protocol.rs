@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::shared::SerialEvent;
+use crate::SerialEvent;
 
 // New window struct
 #[derive(Clone, Debug, Serialize, Deserialize)]

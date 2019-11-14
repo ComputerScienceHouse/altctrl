@@ -1,16 +1,12 @@
-extern crate ncurses;
-extern crate gui_lib;
-
-
 use std::collections::HashMap;
 use std::sync::mpsc::{Sender, Receiver};
 use ncurses::*;
 
-use crate::shared::Event;
+pub mod gui_lib;
+
+use crate::Event;
 use crate::protocol::NewWindow;
 use gui_lib::*;
-
-
 
 #[derive(Clone, Debug)]
 pub enum GuiEvent{

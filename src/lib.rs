@@ -1,10 +1,11 @@
-use std::sync::mpsc;
-use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
+use std::sync::mpsc::{self, Receiver, Sender};
 
-use crate::gui;
-use crate::i2c;
-use crate::protocol::{Button, Device, IncomingMsg};
+pub mod gui;
+pub mod i2c;
+pub mod protocol;
+
+use protocol::{Button, Device, IncomingMsg};
 
 // Represents all messages sent between modules
 #[derive(Clone, Debug)]

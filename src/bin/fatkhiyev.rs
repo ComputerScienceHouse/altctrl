@@ -5,13 +5,9 @@ use std::net::TcpListener;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 
-mod gui;
-mod i2c;
-mod protocol;
-mod shared;
-
-use protocol::{IncomingMsg, OutgoingMsg};
-use shared::{Event, SerialEvent};
+use altctrl::gui;
+use altctrl::{Event, SerialEvent};
+use altctrl::protocol::{IncomingMsg, OutgoingMsg};
 
 // Launch function for an interface module using i2c for communication
 pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
@@ -58,5 +54,5 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
 
 // Launch the main thread using a tcp interface
 fn main() {
-    shared::start(launch);
+    altctrl::start(launch);
 }

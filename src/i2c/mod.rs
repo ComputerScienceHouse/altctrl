@@ -14,8 +14,7 @@ mod button;
 use constants::*;
 use button::ButtonStruct;
 
-use crate::shared::{Event, SerialEvent};
-
+use crate::{Event, SerialEvent};
 use crate::protocol::*;
 
 #[derive(Clone, Debug)]

@@ -1,5 +1,5 @@
 [package]
-name = "gddimagine2020-altctrl-deathpanel"
+name = "altctrl"
 version = "0.1.0"
 authors = ["joseph <josephbgerber@gmail.com>", "willnilges <will.nilges@gmail.com>"]
 edition = "2018"
@@ -17,17 +17,17 @@ i2cdev = "0.4.2"
 rppal = "0.11.3"
 
 [lib]
-name = "gui_lib"
-path = "src/gui/gui_lib.rs"
+name = "altctrl"
+path = "src/lib.rs"
 
 [[bin]]
 name = "chungo"
-path = "src/chungo.rs"
+path = "src/bin/chungo.rs"
 
 [[bin]]
 name = "garfanzo"
-path = "src/garfanzo.rs"
+path = "src/bin/garfanzo.rs"
 
 [[bin]]
 name = "fatkhiyev"
-path = "src/fatkhiyev.rs"
+path = "src/bin/fatkhiyev.rs"

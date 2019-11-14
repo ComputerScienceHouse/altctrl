@@ -7,13 +7,8 @@ use std::io::{BufRead, BufReader, Write};
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 
-mod gui;
-mod i2c;
-mod protocol;
-mod shared;
-
-use protocol::{IncomingMsg, OutgoingMsg};
-use shared::{Event, SerialEvent};
+use altctrl::{Event, SerialEvent};
+use altctrl::protocol::{IncomingMsg, OutgoingMsg};
 
 // Default serial port location on the raspberry pi
 const PORT: &str = "/dev/serial0";
@@ -59,5 +54,5 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
 
 // Launch the main thread using a serial interface
 fn main() {
-    shared::start(launch);
+    altctrl::start(launch);
 }

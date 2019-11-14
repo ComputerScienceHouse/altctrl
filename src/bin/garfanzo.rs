@@ -3,12 +3,11 @@ use std::io;
 use std::io::prelude::*;
 use std::sync::mpsc::{Receiver, Sender};
 
-mod gui;
-mod i2c;
-mod protocol;
-mod shared;
-
-use shared::{Event, SerialEvent};
+use altctrl::{
+    self,
+    Event,
+    SerialEvent,
+};
 
 pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
     let mut file = File::create("/tmp/altctrl.serial").unwrap();
@@ -36,5 +35,5 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
 }
 
 fn main() {
-    shared::start(launch);
+    altctrl::start(launch);
 }

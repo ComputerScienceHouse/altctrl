@@ -8,6 +8,9 @@ pub struct ButtonStruct{
 }
 
 impl ButtonStruct{
+    ///The initialize device function creates an array of ButtonStructs that holds the Buton,
+    /// Device and state of the the button. It defaults the state to zero. This function 
+    /// returns the array.
     pub fn initialize_device_buttons(device: Device) -> [ButtonStruct; 8]{
         let default = ButtonStruct {
             button: Button::B0,

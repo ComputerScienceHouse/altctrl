@@ -8,11 +8,11 @@ use rppal::gpio::{Gpio, InputPin, Level, Trigger};
 use i2cdev::core::*;
 use i2cdev::linux::{LinuxI2CDevice, LinuxI2CError};
 
-mod button;
 mod constants;
+mod port;
 
-use button::PortStruct;
 use constants::*;
+use port::PortStruct;
 
 use crate::protocol::*;
 use crate::{Event, SerialEvent};
@@ -29,7 +29,7 @@ pub struct I2CStruct {
     pub tx: Sender<Event>,
     pub input_pin_0: InputPin,
     pub i2c_device_0: LinuxI2CDevice,
-    pub button_device_0: [button::PortStruct; 8],
+    pub port_struct_0: [port::PortStruct; 8],
 }
 
 ///The initialize function creates a GPIO (only one per RPi), gets pins for the interrupts,
@@ -54,7 +54,7 @@ pub fn initialize(tx: Sender<Event>) -> I2CStruct {
     initialize_i2c_device(&mut i2c_device_0).expect("An i2c device should have been initialied");
 
     //Initialize the Ports connected to the device
-    let button_device_0 = PortStruct::initialize_device_buttons(Device::D0);
+    let port_struct_0 = PortStruct::initialize_device_buttons(Device::D0);
 
     let tx_clone = tx.clone();
 
@@ -75,7 +75,7 @@ pub fn initialize(tx: Sender<Event>) -> I2CStruct {
         tx,
         input_pin_0,
         i2c_device_0,
-        button_device_0,
+        port_struct_0,
     }
 }
 
@@ -98,10 +98,10 @@ pub fn handle(message: I2CEvent, i2c_struct: &mut I2CStruct) {
                 read_i2c(&mut dev, INTCAPA).expect("The value of the button should be recorded");
             for x in 0..8 {
                 let test = 1 & (buttons >> x) == 1;
-                let x_button = i2c_struct.button_device_0[x];
+                let x_button = i2c_struct.port_struct_0[x];
                 if test != x_button.get_state() && !x_button.get_state() && true_state == 0x00 {
                     x_button.set_true();
-                    send_serial(i2c_struct.button_device_0[x], i2c_struct)
+                    send_serial(i2c_struct.port_struct_0[x], i2c_struct)
                 }
             }
         }
@@ -120,7 +120,7 @@ pub fn handle(message: I2CEvent, i2c_struct: &mut I2CStruct) {
                 .expect("The value of the button should be recorded, reset");
             for x in 0..8 {
                 let test = 1 & (buttons >> x) == 1;
-                let x_button = i2c_struct.button_device_0[x];
+                let x_button = i2c_struct.port_struct_0[x];
                 if test != x_button.get_state() && x_button.get_state() && true_state != 0x00 {
                     x_button.set_false();
                 }
@@ -198,12 +198,12 @@ fn button_to_address(button: Port) -> u8 {
 }
 
 ///Send serial message that specified button has been pressed on specified device
-fn send_serial(button: button::PortStruct, i2c_struct: &mut I2CStruct) {
+fn send_serial(button: port::PortStruct, i2c_struct: &mut I2CStruct) {
     i2c_struct
         .tx
         .send(Event::Serial(SerialEvent::Pressed(
             button.get_device(),
-            button.get_button(),
+            button.get_port(),
         )))
         .unwrap();
 }

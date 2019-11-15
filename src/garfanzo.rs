@@ -11,18 +11,6 @@ mod shared;
 use shared::{Event, SerialEvent};
 
 pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
-    // let mut file = File::create("/tmp/altctrl.serial").unwrap();
-    // file.write_all(b"Hello, world!").unwrap();
-    /*tx.send(Event::Gui(gui::GuiEvent::Log("meme!".to_string()))).unwrap();
-    tx.send(Event::Gui(gui::GuiEvent::Log("yaye!".to_string()))).unwrap();
-    tx.send(Event::Gui(gui::GuiEvent::Log("goooo!".to_string()))).unwrap();
-    tx.send(Event::Gui(gui::GuiEvent::Log("water".to_string()))).unwrap();
-    tx.send(Event::Gui(gui::GuiEvent::Log("slaghajaja".to_string()))).unwrap();
-    tx.send(Event::Gui(gui::GuiEvent::Log("eeeee??????".to_string()))).unwrap();*/
-
-    //tx.send(Event::Gui(gui::GuiEvent::Log("aAaA".to_string()))).unwrap();
-    //let window = protocol::NewWindow {id: "Win00".to_string(), content: "I'm gonna /yeet".to_string(), x_pos: 40, y_pos: 30, width: 10, height: 5};
-    //tx.send(Event::Gui(gui::GuiEvent::CreateWindow(window))).unwrap();
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
         match line {
@@ -51,7 +39,6 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
                                         };
                                         tx.send(Event::Gui(gui::GuiEvent::CreateWindow(window))).unwrap();    
                                     }
-                                    
                                 },
                                 "close" => {
                                     let window = command[2].to_string();
@@ -69,7 +56,7 @@ pub fn launch(tx: Sender<Event>, rx: Receiver<SerialEvent>) {
                             tx.send(Event::Gui(gui::GuiEvent::Clear())).unwrap();
                         },
                         "help" => {
-                            tx.send(Event::Gui(gui::GuiEvent::Log("(log, window(id, content, x_pos, y_pos, width, height), clear, help)".to_string()))).unwrap();
+                            tx.send(Event::Gui(gui::GuiEvent::Log("(log, window(id, content, x_pos, y_pos, width, height), clear, help) Separate arguments with \',\'".to_string()))).unwrap();
                         },
                         _ => {
                             tx.send(Event::Gui(gui::GuiEvent::Log("Invalid command received.".to_string()))).unwrap();

@@ -8,19 +8,19 @@ use rppal::gpio::{Gpio, InputPin, Level, Trigger};
 use i2cdev::core::*;
 use i2cdev::linux::{LinuxI2CDevice, LinuxI2CError};
 
-mod constants;
 mod button;
+mod constants;
 
+use button::PortStruct;
 use constants::*;
-use button::ButtonStruct;
 
-use crate::{Event, SerialEvent};
 use crate::protocol::*;
+use crate::{Event, SerialEvent};
 
 #[derive(Clone, Debug)]
 pub enum I2CEvent {
-    On(Device, Button),
-    Off(Device, Button),
+    On(Device, Port),
+    Off(Device, Port),
     Poll(Device),
     ResetState(Device),
 }
@@ -29,11 +29,11 @@ pub struct I2CStruct {
     pub tx: Sender<Event>,
     pub input_pin_0: InputPin,
     pub i2c_device_0: LinuxI2CDevice,
-    pub button_device_0: [button::ButtonStruct; 8],
+    pub button_device_0: [button::PortStruct; 8],
 }
 
 ///The initialize function creates a GPIO (only one per RPi), gets pins for the interrupts,
-/// turns the Pins into InputPins, and then configures asynchronos  interrupt functions for the 
+/// turns the Pins into InputPins, and then configures asynchronos  interrupt functions for the
 /// InputPins. There is a function fot the rising edge and the falling edge.
 pub fn initialize(tx: Sender<Event>) -> I2CStruct {
     //This is setting up a new GPIO There is only one (1) GPIO for a RPi.
@@ -53,23 +53,23 @@ pub fn initialize(tx: Sender<Event>) -> I2CStruct {
     //initialize the I2C device
     initialize_i2c_device(&mut i2c_device_0).expect("An i2c device should have been initialied");
 
-    //Initialize the Buttons connected to the device
-    let mut button_device_0 = ButtonStruct::initialize_device_buttons(Device::D0);
+    //Initialize the Ports connected to the device
+    let button_device_0 = PortStruct::initialize_device_buttons(Device::D0);
 
     let tx_clone = tx.clone();
-    let tx_clone_1 = tx.clone();
 
     //Sets the functions for the interrupts on both rising and falling edge
     input_pin_0
-        .set_async_interrupt(Trigger::RisingEdge, move |level: Level| {
-            tx_clone.send(Event::I2C(I2CEvent::Poll(Device::D0)));
+        .set_async_interrupt(Trigger::RisingEdge, move |level: Level| match level {
+            Level::High => tx_clone
+                .send(Event::I2C(I2CEvent::Poll(Device::D0)))
+                .unwrap(),
+
+            Level::Low => tx_clone
+                .send(Event::I2C(I2CEvent::ResetState(Device::D0)))
+                .unwrap(),
         })
         .expect("The rising edge interrupt function should be configured");
-
-    input_pin_0
-        .set_async_interrupt(Trigger::FallingEdge, move |level: Level| {
-            tx_clone_1.send(Event::I2C(I2CEvent::ResetState(Device::D0)));
-        }).expect("The falling edge interrupt function should be configured");
 
     I2CStruct {
         tx,
@@ -79,7 +79,7 @@ pub fn initialize(tx: Sender<Event>) -> I2CStruct {
     }
 }
 
-///The handle function assigns functions to events. This one defines the Poll, Reset, On, and Off 
+///The handle function assigns functions to events. This one defines the Poll, Reset, On, and Off
 /// events for the I2C. This function is called when an I2C event needs to be run.
 pub fn handle(message: I2CEvent, i2c_struct: &mut I2CStruct) {
     match message {
@@ -94,11 +94,13 @@ pub fn handle(message: I2CEvent, i2c_struct: &mut I2CStruct) {
                 }
             };
             let buttons = read_i2c(&mut dev, INTFA).expect("the buttons should have been read");
-            let true_state =  read_i2c(&mut dev, INTCAPA).expect("The value of the button should be recorded");
+            let true_state =
+                read_i2c(&mut dev, INTCAPA).expect("The value of the button should be recorded");
             for x in 0..8 {
                 let test = 1 & (buttons >> x) == 1;
-                if test != i2c_struct.button_device_0[x].state && i2c_struct.button_device_0[x].state == false && true_state == 0x00{
-                    i2c_struct.button_device_0[x].state = true;
+                let x_button = i2c_struct.button_device_0[x];
+                if test != x_button.get_state() && !x_button.get_state() && true_state == 0x00 {
+                    x_button.set_true();
                     send_serial(i2c_struct.button_device_0[x], i2c_struct)
                 }
             }
@@ -114,10 +116,13 @@ pub fn handle(message: I2CEvent, i2c_struct: &mut I2CStruct) {
                 }
             };
             let buttons = read_i2c(&mut dev, INTFA).expect("the buttons should have been read");
+            let true_state = read_i2c(&mut dev, INTCAPA)
+                .expect("The value of the button should be recorded, reset");
             for x in 0..8 {
                 let test = 1 & (buttons >> x) == 1;
-                if test != i2c_struct.button_device_0[x].state && i2c_struct.button_device_0[x].state == false{
-                    i2c_struct.button_device_0[x].state = false;
+                let x_button = i2c_struct.button_device_0[x];
+                if test != x_button.get_state() && x_button.get_state() && true_state != 0x00 {
+                    x_button.set_false();
                 }
             }
         }
@@ -126,7 +131,7 @@ pub fn handle(message: I2CEvent, i2c_struct: &mut I2CStruct) {
         This will set the state of a specified button on a specified device to true
         */
         I2CEvent::On(device, button) => {
-            let mut i2c = {
+            let i2c = {
                 match device {
                     Device::D0 => &mut i2c_struct.i2c_device_0,
                 }
@@ -141,7 +146,7 @@ pub fn handle(message: I2CEvent, i2c_struct: &mut I2CStruct) {
         */
         I2CEvent::Off(device, button) => {
             thread::sleep(time::Duration::from_secs(2));
-            let mut i2c = {
+            let i2c = {
                 match device {
                     Device::D0 => &mut i2c_struct.i2c_device_0,
                 }
@@ -153,7 +158,7 @@ pub fn handle(message: I2CEvent, i2c_struct: &mut I2CStruct) {
     }
 }
 
-///Setting up the MCP23017. 
+///Setting up the MCP23017.
 fn initialize_i2c_device(dev: &mut LinuxI2CDevice) -> Result<(), LinuxI2CError> {
     //Change bank B to outputs
     dev.smbus_write_byte_data(IODIRB, 0x00)?;
@@ -179,21 +184,26 @@ fn read_i2c(dev: &mut LinuxI2CDevice, register: u8) -> Result<u8, LinuxI2CError>
 }
 
 ///Converts buttons to addresses
-fn button_to_address(button: Button) -> u8 {
+fn button_to_address(button: Port) -> u8 {
     match button {
-        Button::B0 => !0x00,
-        Button::B1 => !0x01,
-        Button::B2 => !0x02,
-        Button::B3 => !0x03,
-        Button::B4 => !0x04,
-        Button::B5 => !0x05,
-        Button::B6 => !0x06,
-        Button::B7 => !0x07,
+        Port::B0 => !0x00,
+        Port::B1 => !0x01,
+        Port::B2 => !0x02,
+        Port::B3 => !0x03,
+        Port::B4 => !0x04,
+        Port::B5 => !0x05,
+        Port::B6 => !0x06,
+        Port::B7 => !0x07,
     }
 }
 
 ///Send serial message that specified button has been pressed on specified device
-fn send_serial(button: button::ButtonStruct, i2c_struct: &mut I2CStruct){
-    i2c_struct.tx.send(Event::Serial(SerialEvent::Pressed(button.device, button.button)))
-        .expect("A pressed serial message shoul have been sent");
+fn send_serial(button: button::PortStruct, i2c_struct: &mut I2CStruct) {
+    i2c_struct
+        .tx
+        .send(Event::Serial(SerialEvent::Pressed(
+            button.get_device(),
+            button.get_button(),
+        )))
+        .unwrap();
 }

@@ -5,7 +5,7 @@ pub mod gui;
 pub mod i2c;
 pub mod protocol;
 
-use protocol::{Button, Device, IncomingMsg};
+use protocol::{Port, Device, IncomingMsg};
 
 // Represents all messages sent between modules
 #[derive(Clone, Debug)]
@@ -32,8 +32,8 @@ impl From<IncomingMsg> for Event {
 // These messages are usually sent to the client
 #[derive(Clone, Debug)]
 pub enum SerialEvent {
-    Pressed(Device, Button),
-    Released(Device, Button),
+    Pressed(Device, Port),
+    Released(Device, Port),
 }
 
 // Main thread of altctrl

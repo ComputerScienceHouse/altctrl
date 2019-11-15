@@ -23,7 +23,7 @@ pub enum Device {
 
 // Represents a port on a device in the system
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
-pub enum Button {
+pub enum Port {
     B0,
     B1,
     B2,
@@ -39,15 +39,15 @@ pub enum Button {
 pub enum IncomingMsg {
     CreateWindow(NewWindow),
     DestroyWindow(String),
-    On(Device, Button),
-    Off(Device, Button),
+    On(Device, Port),
+    Off(Device, Port),
 }
 
 // Represents a message that will be sent to the client
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum OutgoingMsg {
-    Pressed(Device, Button),
-    Released(Device, Button),
+    Pressed(Device, Port),
+    Released(Device, Port),
 }
 
 impl From<SerialEvent> for OutgoingMsg {

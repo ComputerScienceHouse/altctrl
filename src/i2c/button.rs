@@ -1,39 +1,59 @@
 use crate::protocol::*;
 
 #[derive(Copy, Clone, Debug)]
-pub struct ButtonStruct{
-    pub button: Button,
+pub struct PortStruct {
+    pub button: Port,
     pub device: Device,
     pub state: bool,
 }
 
-impl ButtonStruct{
-    ///The initialize device function creates an array of ButtonStructs that holds the Buton,
-    /// Device and state of the the button. It defaults the state to zero. This function 
+impl PortStruct {
+    ///The initialize device function creates an array of PortStructs that holds the Buton,
+    /// Device and state of the the button. It defaults the state to zero. This function
     /// returns the array.
-    pub fn initialize_device_buttons(device: Device) -> [ButtonStruct; 8]{
-        let default = ButtonStruct {
-            button: Button::B0,
+    pub fn initialize_device_buttons(device: Device) -> [PortStruct; 8] {
+        let default = PortStruct {
+            button: Port::B0,
             device: device,
             state: false,
         };
 
-        let mut device_button_array: [ButtonStruct; 8] = [default; 8];
-        for i in 0..8{
+        let mut device_button_array: [PortStruct; 8] = [default; 8];
+        for i in 0..8 {
             let button_enum_val = match i {
-                0 => Button::B0,
-                1 => Button::B1,
-                2 => Button::B2,
-                3 => Button::B3,
-                4 => Button::B4,
-                5 => Button::B5,
-                6 => Button::B6,
-                7 => Button::B7,
-                _ => panic!("Not possible I promise")
+                0 => Port::B0,
+                1 => Port::B1,
+                2 => Port::B2,
+                3 => Port::B3,
+                4 => Port::B4,
+                5 => Port::B5,
+                6 => Port::B6,
+                7 => Port::B7,
+                _ => panic!("Not possible I promise"),
             };
 
             device_button_array[i].button = button_enum_val;
         }
-        device_button_array 
+        device_button_array
+    }
+
+    pub fn get_button(&self) -> Port {
+        self.button
+    }
+
+    pub fn get_device(&self) -> Device {
+        self.device
+    }
+
+    pub fn get_state(&self) -> bool {
+        self.state
+    }
+
+    pub fn set_true(mut self) {
+        self.state = true;
+    }
+
+    pub fn set_false(mut self) {
+        self.state = false;
     }
 }

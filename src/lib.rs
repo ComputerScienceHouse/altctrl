@@ -1,11 +1,11 @@
-use std::thread;
 use std::sync::mpsc::{self, Receiver, Sender};
+use std::thread;
 
 pub mod gui;
 pub mod i2c;
 pub mod protocol;
 
-use protocol::{Port, Device, IncomingMsg};
+use protocol::{Device, IncomingMsg, Port};
 
 // Represents all messages sent between modules
 #[derive(Clone, Debug)]
@@ -53,7 +53,6 @@ pub fn start(interface: fn(Sender<Event>, Receiver<SerialEvent>)) {
     thread::spawn(move || {
         interface(clone_tx, serial_rx);
     });
-
     let clone_tx = tx.clone();
 
     //Launch the gui module
@@ -61,14 +60,22 @@ pub fn start(interface: fn(Sender<Event>, Receiver<SerialEvent>)) {
         gui::launch(clone_tx, gui_rx);
     });
 
-    //Initalizes the data structure for the i2c module
-    let mut i2c_struct = i2c::initialize(tx.clone());
+    let mut i2c_struct = None;
+
+    if cfg!(not(feature = "no_i2c")) {
+        //Initalizes the data structure for the i2c module
+        i2c_struct = Some(i2c::initialize(tx.clone()));
+    }
 
     //Handles message scheduling in a loop
     loop {
         for event in rx.iter() {
             match event {
-                Event::I2C(i2c_event) => i2c::handle(i2c_event, &mut i2c_struct),
+                Event::I2C(i2c_event) => {
+                    if let Some(structure) = i2c_struct.as_mut() {
+                        i2c::handle(i2c_event, structure);
+                    }
+                }
                 Event::Serial(serial_event) => serial_tx.send(serial_event).unwrap(),
                 Event::Gui(gui_event) => gui_tx.send(gui_event).unwrap(),
             }

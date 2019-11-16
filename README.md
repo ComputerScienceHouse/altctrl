@@ -22,6 +22,12 @@ In the first terminal run the tty command. This command will return the tty devi
 In the second terminal navigate to this repo and run,
 `cargo run --bin garfanzo > {result of tty}`
 
+### Activating i2c feature
+By default the i2c feature is enabled for this crate. To test this crate on a different machine this feature must be disabled.
+
+To disable the i2c feature add `--features=no_i2c` to the cargo command.
+Ex: `cargo run --features=no_i2c --bin garfanzo`
+
 ### Setting up usb gadget
 Altctrl communicates with the client over the rpi zero's data usb port.
 The rpi must be configured to allow serial over usb.

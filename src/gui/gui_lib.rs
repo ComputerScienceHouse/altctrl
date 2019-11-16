@@ -1,8 +1,6 @@
 use ncurses::*;
 use std::collections::HashMap;
 
-const INSTRUCTIONS: &str = "Use arrow keys to move. Press F1 to exit. Press 'g' to goto. Press 'm' to make a message.\nPress 'l' to list windows. Press 'e' to eliminate a window. Press 'c' to clear. Press 'r' to resize the C U B E.";
-
 pub fn create_win(name: String, start_y: i32,
                   start_x: i32,
                   window_width: i32,
@@ -32,7 +30,7 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
                 Some(&win) => {
                     destroy_win(win);
                     windows.remove(&window);
-                    logbuffer.insert(0, format!("{} Destroyed.", window).to_string());
+                    logbuffer.insert(0, format!("Window \"{}\" destroyed.", window).to_string());
                     showlog(&logbuffer);
                 },
                 _ => {
@@ -43,44 +41,7 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
     }
 }
 
-pub fn put_pos(start_y: i32, start_x: i32) {
-    let mut max_x = 0;
-    let mut max_y = 0;
-    /* Get the screen bounds. */
-    getmaxyx(stdscr(), &mut max_y, &mut max_x);
-    mv(LINES() - 4, 0);
-    for _i in 0..max_x {
-        addstr("-");
-    }
-    mv(5, 0);
-    for _i in 0..max_x {
-        addstr("-");
-    }
-    //Keep commands window clear
-    mv(4, COLS() - 9);
-    clrtoeol();
-    mv(4, COLS() - 8);
-    attron(A_BOLD());
-    addstr("Commands");
-    mv(6,COLS()-5);
-    addstr("Input");
-    attroff(A_BOLD());
-    mv(3,COLS()-8);
-    clrtoeol();
-    mv(LINES() - 3, 0);
-    clrtoeol();
-    // Put position
-    attron(A_BOLD());
-    mvprintw(LINES() - 3, 0, format!("X: {} Y: {}", start_y, start_x).as_str());
-    attroff(A_BOLD());
-    mv(LINES() - 2, 0);
-    clrtoeol();
-    mv(LINES() - 1, 0);
-    clrtoeol();
-    mvprintw(LINES() - 2, 0, &INSTRUCTIONS);
-}
-
-pub fn put_alert(x_loc: i32,
+pub fn open_win(x_loc: i32,
                  y_loc: i32,
                  x_dim: i32,
                  y_dim: i32,
@@ -139,6 +100,19 @@ pub fn put_alert(x_loc: i32,
 }
 
 pub fn showlog(logbuffer: &Vec<String>) {
+    let mut max_x = 0;
+    let mut max_y = 0;
+    /* Get the screen bounds. */
+    getmaxyx(stdscr(), &mut max_y, &mut max_x);
+    mv(5, 0);
+    for _i in 0..max_x {
+        addstr("-");
+    }
+    attron(A_BOLD());
+    mvprintw(5, COLS() - 8, &"Console");
+    attroff(A_BOLD());
+    mv(0,0);
+
     //Update log window...
     for i in 0..5 {
         mv(i,0);
@@ -146,18 +120,9 @@ pub fn showlog(logbuffer: &Vec<String>) {
     }
     mv(0,0);
     for i in (0..5).rev() {
+        mv(4-(i as i32), 0);
+        // addstr(&i.to_string());
         addstr(logbuffer.get(i).unwrap());
-        addstr("\n");
+        // addstr("\n");
     }
-    //Keep commands label present...
-    mv(4, COLS() - 9);
-    clrtoeol();
-    mv(4, COLS() - 8);
-    attron(A_BOLD());
-    addstr("Commands");
-    mv(6,COLS()-5);
-    addstr("Input");
-    attroff(A_BOLD());
-    mv(3,COLS()-8);
-    clrtoeol();
 }

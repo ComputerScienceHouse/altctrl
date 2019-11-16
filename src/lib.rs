@@ -1,11 +1,11 @@
-use std::thread;
 use std::sync::mpsc::{self, Receiver, Sender};
+use std::thread;
 
 pub mod gui;
 pub mod i2c;
 pub mod protocol;
 
-use protocol::{Port, Device, IncomingMsg};
+use protocol::{Device, IncomingMsg, Port};
 
 // Represents all messages sent between modules
 #[derive(Clone, Debug)]

@@ -21,13 +21,5 @@ name = "altctrl"
 path = "src/lib.rs"
 
 [[bin]]
-name = "chungo"
-path = "src/bin/chungo.rs"
-
-[[bin]]
-name = "garfanzo"
-path = "src/bin/garfanzo.rs"
-
-[[bin]]
-name = "fatkhiyev"
-path = "src/bin/fatkhiyev.rs"
+name = "main"
+path = "src/bin/main.rs"

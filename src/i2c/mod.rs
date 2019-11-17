@@ -177,8 +177,6 @@ fn initialize_i2c_device(dev: &mut LinuxI2CDevice) -> Result<(), LinuxI2CError> 
 ///Reads the specified register from the specified device
 fn read_i2c(dev: &mut LinuxI2CDevice, register: u8) -> Result<u8, LinuxI2CError> {
     let pin = dev.smbus_read_byte_data(register)?;
-    println!("{}", pin);
-    println!("a button has been pressed");
 
     Ok(pin)
 }

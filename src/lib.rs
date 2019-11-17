@@ -1,15 +1,15 @@
-use std::{thread, io};
-use std::sync::mpsc::{self, Receiver, Sender};
+use std::sync::mpsc::{Receiver, Sender};
+use std::{io, thread};
 
 pub mod gui;
 pub mod i2c;
 pub mod protocol;
 
-use protocol::{Port, Device, IncomingMsg, OutgoingMsg};
+use protocol::{Device, IncomingMsg, OutgoingMsg, Port};
 use serialport::prelude::*;
-use std::time::Duration;
-use std::io::{BufReader, BufRead, Write};
+use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
+use std::time::Duration;
 
 // Represents all messages sent between modules
 #[derive(Clone, Debug)]
@@ -112,10 +112,12 @@ impl AltctrlInterface for Fatkhiyev {
         // Spawn a thread for sending OutgoingMsg to the client over tcp
         thread::spawn(move || {
             for message in serial_receiver.iter() {
-                stream_tx.write_all(
-                    serde_json::to_string(&OutgoingMsg::from(message))
-                        .unwrap()
-                        .as_bytes())
+                stream_tx
+                    .write_all(
+                        serde_json::to_string(&OutgoingMsg::from(message))
+                            .unwrap()
+                            .as_bytes(),
+                    )
                     .unwrap();
             }
         });
@@ -146,64 +148,98 @@ pub struct Garfanzo;
 
 impl AltctrlInterface for Garfanzo {
     fn launch(&self, sender: Sender<Event>, serial_receiver: Receiver<SerialEvent>) {
+        let sender_clone = sender.clone();
+
+        thread::spawn(move || {
+            for message in serial_receiver.iter() {
+                match message {
+                    SerialEvent::Pressed(device, button) => {
+                        let string = format!("Button pressed: {:?} {:?}", device, button);
+                        sender_clone
+                            .send(Event::Gui(gui::GuiEvent::Log(string)))
+                            .unwrap();
+                    }
+                    SerialEvent::Released(device, button) => {
+                        let string = format!("Button released: {:?} {:?}", device, button);
+                        sender_clone
+                            .send(Event::Gui(gui::GuiEvent::Log(string)))
+                            .unwrap();
+                    }
+                }
+            }
+        });
+
         let stdin = io::stdin();
         for line in stdin.lock().lines() {
             match line {
                 Ok(command) => {
-                    let command = command.split(",").collect::<Vec<&str>>();
-                    if command.len() >= 1 {
-                        match command[0].as_ref() {
+                    let command = command.split(',').collect::<Vec<&str>>();
+                    if !command.is_empty() {
+                        match command[0] {
                             "log" => {
-                                sender.send(Event::Gui(gui::GuiEvent::Log(command[1].to_string()))).unwrap();
-                            },
-                            "window" => {
-                                match command[1].as_ref() {
-                                    "new" => {
-                                        if command.len() == 8 {
-                                            sender.send(
-                                                Event::Gui(
-                                                    gui::GuiEvent::Log(
-                                                        format!("Creating window, \"{}\"", command[2]).to_string()))).unwrap();
-                                            let window = protocol::NewWindow {
-                                                id: command[2].to_string(),
-                                                content: command[3].to_string(),
-                                                x_pos: command[4].parse::<i32>().unwrap(),
-                                                y_pos: command[5].parse::<i32>().unwrap(),
-                                                width: command[6].parse::<i32>().unwrap(),
-                                                height: command[7].parse::<i32>().unwrap()
-                                            };
-                                            sender.send(Event::Gui(gui::GuiEvent::CreateWindow(window))).unwrap();
-                                        }
-                                    },
-                                    "close" => {
-                                        let window = command[2].to_string();
-                                        sender.send(Event::Gui(gui::GuiEvent::DestroyWindow(window))).unwrap();
-                                    },
-                                    "list" => {
-                                        sender.send(Event::Gui(gui::GuiEvent::List())).unwrap();
-                                    },
-                                    _ => {
-                                        sender.send(Event::Gui(gui::GuiEvent::Log(format!("Invalid command received. ({}) Please enter a window subcommand. (new, close, list)", command[1]).to_string()))).unwrap();
-                                    },
+                                sender
+                                    .send(Event::Gui(gui::GuiEvent::Log(command[1].to_string())))
+                                    .unwrap();
+                            }
+                            "window" => match command[1] {
+                                "new" => {
+                                    if command.len() == 8 {
+                                        sender
+                                            .send(Event::Gui(gui::GuiEvent::Log(
+                                                format!("Creating window, \"{}\"", command[2])
+                                                    .to_string(),
+                                            )))
+                                            .unwrap();
+                                        let window = protocol::NewWindow {
+                                            id: command[2].to_string(),
+                                            content: command[3].to_string(),
+                                            x_pos: command[4].parse::<i32>().unwrap(),
+                                            y_pos: command[5].parse::<i32>().unwrap(),
+                                            width: command[6].parse::<i32>().unwrap(),
+                                            height: command[7].parse::<i32>().unwrap(),
+                                        };
+                                        sender
+                                            .send(Event::Gui(gui::GuiEvent::CreateWindow(window)))
+                                            .unwrap();
+                                    }
+                                }
+                                "close" => {
+                                    let window = command[2].to_string();
+                                    sender
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow(window)))
+                                        .unwrap();
+                                }
+                                "list" => {
+                                    sender.send(Event::Gui(gui::GuiEvent::List())).unwrap();
+                                }
+                                _ => {
+                                    sender.send(Event::Gui(gui::GuiEvent::Log(format!("Invalid command received. ({}) Please enter a window subcommand. (new, close, list)", command[1]).to_string()))).unwrap();
                                 }
                             },
                             "clear" => {
                                 sender.send(Event::Gui(gui::GuiEvent::Clear())).unwrap();
-                            },
+                            }
                             "help" => {
                                 sender.send(Event::Gui(gui::GuiEvent::Log("(log, window(id, content, x_pos, y_pos, width, height), clear, help) Separate arguments with \',\'".to_string()))).unwrap();
-                            },
+                            }
                             _ => {
-                                sender.send(Event::Gui(gui::GuiEvent::Log("Invalid command received.".to_string()))).unwrap();
-                            },
-
+                                sender
+                                    .send(Event::Gui(gui::GuiEvent::Log(
+                                        "Invalid command received.".to_string(),
+                                    )))
+                                    .unwrap();
+                            }
                         }
                     } else {
-                        sender.send(Event::Gui(gui::GuiEvent::Log("Invalid command received.".to_string()))).unwrap();
+                        sender
+                            .send(Event::Gui(gui::GuiEvent::Log(
+                                "Invalid command received.".to_string(),
+                            )))
+                            .unwrap();
                     }
-                },
-                _ => {
-                    println!("*** OH F*CK!!! ***");
+                }
+                Err(e) => {
+                    eprintln!("{}", e);
                 }
             }
         }

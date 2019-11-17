@@ -60,7 +60,7 @@ pub fn initialize(tx: Sender<Event>) -> I2CStruct {
 
     //Sets the functions for the interrupts on both rising and falling edge
     input_pin_0
-        .set_async_interrupt(Trigger::RisingEdge, move |level: Level| match level {
+        .set_async_interrupt(Trigger::Both, move |level: Level| match level {
             Level::High => tx_clone
                 .send(Event::I2C(I2CEvent::Poll(Device::D0)))
                 .unwrap(),
@@ -177,8 +177,6 @@ fn initialize_i2c_device(dev: &mut LinuxI2CDevice) -> Result<(), LinuxI2CError> 
 ///Reads the specified register from the specified device
 fn read_i2c(dev: &mut LinuxI2CDevice, register: u8) -> Result<u8, LinuxI2CError> {
     let pin = dev.smbus_read_byte_data(register)?;
-    println!("{}", pin);
-    println!("a button has been pressed");
 
     Ok(pin)
 }

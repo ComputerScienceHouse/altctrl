@@ -36,25 +36,27 @@ pub enum Port {
 
 // Represents a message coming from the client
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum IncomingMsg {
-    CreateWindow(NewWindow),
-    DestroyWindow(String),
-    On(Device, Port),
-    Off(Device, Port),
+    CreateWindow { window: NewWindow },
+    DestroyWindow { id: String },
+    On { device: Device, port: Port },
+    Off { device: Device, port: Port },
 }
 
 // Represents a message that will be sent to the client
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum OutgoingMsg {
-    Pressed(Device, Port),
-    Released(Device, Port),
+    Pressed { device: Device, port: Port },
+    Released { device: Device, port: Port },
 }
 
 impl From<SerialEvent> for OutgoingMsg {
     fn from(event: SerialEvent) -> Self {
         match event {
-            SerialEvent::Pressed(device, button) => OutgoingMsg::Pressed(device, button),
-            SerialEvent::Released(device, button) => OutgoingMsg::Released(device, button),
+            SerialEvent::Pressed(device, port) => OutgoingMsg::Pressed { device, port },
+            SerialEvent::Released(device, port) => OutgoingMsg::Released { device, port },
         }
     }
 }

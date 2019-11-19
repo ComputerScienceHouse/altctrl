@@ -43,7 +43,7 @@ pub fn initialize(tx: Sender<Event>) -> I2CStruct {
     let maybe_input_pin_0 = gpio
         .get(RPI_GPIO_INT_PIN)
         .expect("A new pin should have been created");
-    //Turns Pin into InputPin
+    //Turns Pin into InputPin.
     let mut input_pin_0 = maybe_input_pin_0.into_input_pulldown();
 
     //Create I2C device

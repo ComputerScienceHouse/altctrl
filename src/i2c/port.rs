@@ -13,22 +13,22 @@ impl PortStruct {
     /// returns the array.
     pub fn initialize_device_buttons(device: Device) -> [PortStruct; 8] {
         let default = PortStruct {
-            port: Port::B0,
-            device: device,
+            port: Port::P0,
+            device,
             state: false,
         };
 
         let mut device_button_array: [PortStruct; 8] = [default; 8];
         for i in 0..8 {
             let button_enum_val = match i {
-                0 => Port::B0,
-                1 => Port::B1,
-                2 => Port::B2,
-                3 => Port::B3,
-                4 => Port::B4,
-                5 => Port::B5,
-                6 => Port::B6,
-                7 => Port::B7,
+                0 => Port::P0,
+                1 => Port::P1,
+                2 => Port::P2,
+                3 => Port::P3,
+                4 => Port::P4,
+                5 => Port::P5,
+                6 => Port::P6,
+                7 => Port::P7,
                 _ => panic!("Not possible I promise"),
             };
 
@@ -37,15 +37,15 @@ impl PortStruct {
         device_button_array
     }
 
-    pub fn get_port(&self) -> Port {
+    pub fn get_port(self) -> Port {
         self.port
     }
 
-    pub fn get_device(&self) -> Device {
+    pub fn get_device(self) -> Device {
         self.device
     }
 
-    pub fn get_state(&self) -> bool {
+    pub fn get_state(self) -> bool {
         self.state
     }
 

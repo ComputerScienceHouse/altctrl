@@ -13,6 +13,8 @@ pub const INTCONA: u8 = 0x08;
 pub const IOCON: u8 = 0x0a;
 
 pub const GPIO_A: u8 = 0x12;
+pub const GPIOB: u8 = 0x13;
+
 pub const OLATB: u8 = 0x15;
 
 pub const IODIRA: u8 = 0x00;

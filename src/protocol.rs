@@ -24,14 +24,14 @@ pub enum Device {
 // Represents a port on a device in the system
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum Port {
-    B0,
-    B1,
-    B2,
-    B3,
-    B4,
-    B5,
-    B6,
-    B7,
+    P0 = 0,
+    P1 = 1,
+    P2 = 2,
+    P3 = 3,
+    P4 = 4,
+    P5 = 5,
+    P6 = 6,
+    P7 = 7,
 }
 
 // Represents a message coming from the client

@@ -154,8 +154,15 @@ impl AltctrlInterface for Garfanzo {
             let mut p3_pressed = false;
 
             let port_map = [Port::P0, Port::P1, Port::P2, Port::P3];
-            let mut port_struct = [false, false, false, false];
+            let mut port_struct = [true, false, false, false];
             let mut seed = 69420;
+
+            sender_clone
+                .send(Event::I2C(i2c::I2CEvent::On(
+                    Device::D0,
+                    port_map[seed % 4],
+                )))
+                .unwrap();
 
             for message in serial_receiver.iter() {
                 match message {
@@ -177,7 +184,7 @@ impl AltctrlInterface for Garfanzo {
                                         .unwrap();
 
                                     sender_clone
-                                        .send(Event::I2C(i2c::I2CEvent::Off(
+                                        .send(Event::I2C(i2c::I2CEvent::On(
                                             device,
                                             port_map[seed % 4],
                                         )))
@@ -249,7 +256,7 @@ impl AltctrlInterface for Garfanzo {
                                         .unwrap();
 
                                     sender_clone
-                                        .send(Event::I2C(i2c::I2CEvent::Off(
+                                        .send(Event::I2C(i2c::I2CEvent::On(
                                             device,
                                             port_map[seed % 4],
                                         )))
@@ -329,7 +336,7 @@ impl AltctrlInterface for Garfanzo {
                                         .unwrap();
 
                                     sender_clone
-                                        .send(Event::I2C(i2c::I2CEvent::Off(
+                                        .send(Event::I2C(i2c::I2CEvent::On(
                                             device,
                                             port_map[seed % 4],
                                         )))
@@ -415,7 +422,7 @@ impl AltctrlInterface for Garfanzo {
                                         .unwrap();
 
                                     sender_clone
-                                        .send(Event::I2C(i2c::I2CEvent::Off(
+                                        .send(Event::I2C(i2c::I2CEvent::On(
                                             device,
                                             port_map[seed % 4],
                                         )))

@@ -165,6 +165,18 @@ impl AltctrlInterface for Garfanzo {
                                 match p0_pressed {
                                     true => {
                                         sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Event".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss HP".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss Abilities".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
                                         .send(Event::Gui(gui::GuiEvent::DestroyWindow("Hello!".to_string())))
                                         .unwrap();
 
@@ -177,6 +189,9 @@ impl AltctrlInterface for Garfanzo {
                                         .unwrap();
 
                                         p0_pressed = false;
+                                        p1_pressed = false;
+                                        p2_pressed = false;
+                                        p3_pressed = false;
                                     },
                                     false => {
                                         sender_clone
@@ -193,6 +208,22 @@ impl AltctrlInterface for Garfanzo {
                                 match p1_pressed {
                                     true => {
                                         sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Event".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss HP".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss Abilities".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Hello!".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
                                         .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player Score HUD".to_string())))
                                         .unwrap();
 
@@ -200,8 +231,10 @@ impl AltctrlInterface for Garfanzo {
                                         .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player HP".to_string())))
                                         .unwrap();
 
+                                        p0_pressed = false;
                                         p1_pressed = false;
-
+                                        p2_pressed = false;
+                                        p3_pressed = false;
                                     },
                                     false => {
                                         // Create scoreboard
@@ -227,6 +260,10 @@ impl AltctrlInterface for Garfanzo {
                                 match p2_pressed {
                                     true => {
                                         sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Event".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
                                         .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss HP".to_string())))
                                         .unwrap();
 
@@ -246,8 +283,10 @@ impl AltctrlInterface for Garfanzo {
                                         .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player HP".to_string())))
                                         .unwrap();
 
+                                        p0_pressed = false;
+                                        p1_pressed = false;
                                         p2_pressed = false;
-
+                                        p3_pressed = false;
                                     },
                                     false => {
                                         // Create scoreboard
@@ -296,6 +335,9 @@ impl AltctrlInterface for Garfanzo {
                                         .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player HP".to_string())))
                                         .unwrap();
 
+                                        p0_pressed = false;
+                                        p1_pressed = false;
+                                        p2_pressed = false;
                                         p3_pressed = false;
                                     },
                                     false => {

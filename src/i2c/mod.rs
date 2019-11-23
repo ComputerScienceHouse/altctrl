@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 
 use std::sync::mpsc::Sender;
+use std::thread;
+use std::time::Duration;
 
 use rppal::gpio::{Gpio, InputPin, Level, Trigger};
 
@@ -59,17 +61,17 @@ pub fn initialize(tx: Sender<Event>) -> I2CStruct {
     let tx_clone = tx.clone();
 
     //Sets the functions for the interrupts on both rising and falling edge
-    input_pin_0
-        .set_async_interrupt(Trigger::Both, move |level: Level| match level {
-            Level::High => tx_clone
-                .send(Event::I2C(I2CEvent::Poll(Device::D0)))
-                .unwrap(),
+    thread::spawn(move || loop {
+        tx_clone
+            .send(Event::I2C(I2CEvent::Poll(Device::D0)))
+            .unwrap();
 
-            Level::Low => tx_clone
-                .send(Event::I2C(I2CEvent::ResetState(Device::D0)))
-                .unwrap(),
-        })
-        .expect("The rising edge interrupt function should be configured");
+        tx_clone
+            .send(Event::I2C(I2CEvent::ResetState(Device::D0)))
+            .unwrap();
+
+        thread::sleep(Duration::from_millis(10));
+    });
 
     I2CStruct {
         tx,

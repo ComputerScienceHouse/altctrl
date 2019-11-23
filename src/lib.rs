@@ -5,7 +5,7 @@ pub mod gui;
 pub mod i2c;
 pub mod protocol;
 
-use protocol::{Device, IncomingMsg, OutgoingMsg, Port};
+use protocol::{Device, IncomingMsg, OutgoingMsg, Port, NewWindow};
 use serialport::prelude::*;
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
@@ -155,6 +155,22 @@ impl AltctrlInterface for Garfanzo {
                         sender_clone
                             .send(Event::Gui(gui::GuiEvent::Log(string)))
                             .unwrap();
+                        match button {
+                            Port::P0 => {
+                                sender_clone
+                                .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow { id: "hello".to_string(), content: "I am a window".to_string(), x_pos: 10, y_pos: 10, width: 10, height: 10 })))
+                                .unwrap();
+                            },
+                            Port::P1 => {
+                            sender_clone
+                            .send(Event::Gui(gui::GuiEvent::DestroyWindow("hello".to_string())))
+                            .unwrap();
+                            },
+                            Port::P2 => {},
+                            Port::P3 => {},
+                            _ => {},
+                        }
+                        
                     }
                     _ => {} // SerialEvent::Released(device, button) => {
                             //     let string = format!("Button released: {:?} {:?}", device, button);

@@ -165,19 +165,55 @@ impl AltctrlInterface for Garfanzo {
                                 match p0_pressed {
                                     true => {
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("hello".to_string())))
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("hello!".to_string())))
                                         .unwrap();
                                         p0_pressed = false;
                                     },
                                     false => {
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow { id: "hello".to_string(), content: "I am a window".to_string(), x_pos: 10, y_pos: 10, width: 10, height: 10 })))
+                                        .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
+                                            id: "hello!".to_string(),
+                                            content: "I am a window! This was project was made in Rust by Computer Science House! The plan is to use this for the GDD Imagine RIT project to mess with their mini games.".to_string(),
+                                            x_pos: 10, y_pos: 10, width: 20, height: 10 })))
                                         .unwrap();
                                         p0_pressed = true;
                                     },
                                 }
                             },
                             Port::P1 => {
+                                match p1_pressed {
+                                    true => {
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Example HUD".to_string())))
+                                        .unwrap();
+                                        p1_pressed = false;
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Example HP".to_string())))
+                                        .unwrap();
+                                        p1_pressed = false;
+
+                                    },
+                                    false => {
+                                        // Create scoreboard
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
+                                            id: "Example HUD".to_string(),
+                                            content: "Player 1: 300pts\nPlayer 2: 432pts\nPlayer 3: 120pts\nPlayer 4: 38pts".to_string(), 
+                                            x_pos: 1, y_pos: 8, width: 10, height: 15 })))
+                                        .unwrap();
+
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
+                                            id: "Example HP".to_string(),
+                                            content: "Player 1: 20HP\nPlayer 2: 28HP\nPlayer 3: 12HP\nPlayer 4: 3HP".to_string(), 
+                                            x_pos: 20, y_pos: 8, width: 10, height: 15 })))
+                                        .unwrap();
+                                        p1_pressed = true;
+                                    },
+                                }
+
                             },
                             Port::P2 => {},
                             Port::P3 => {},

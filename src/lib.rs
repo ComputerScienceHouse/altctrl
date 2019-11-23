@@ -165,15 +165,15 @@ impl AltctrlInterface for Garfanzo {
                                 match p0_pressed {
                                     true => {
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("hello!".to_string())))
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Hello!".to_string())))
                                         .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Example HUD".to_string())))
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player Score HUD".to_string())))
                                         .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Example HP".to_string())))
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player HP".to_string())))
                                         .unwrap();
 
                                         p0_pressed = false;
@@ -181,7 +181,7 @@ impl AltctrlInterface for Garfanzo {
                                     false => {
                                         sender_clone
                                         .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
-                                            id: "hello!".to_string(),
+                                            id: "Hello!".to_string(),
                                             content: "I am a window! This was project was made in Rust by Computer Science House! The plan is to use this for the GDD Imagine RIT project to mess with their mini games.".to_string(),
                                             x_pos: 10, y_pos: 10, width: 20, height: 10 })))
                                         .unwrap();
@@ -193,15 +193,11 @@ impl AltctrlInterface for Garfanzo {
                                 match p1_pressed {
                                     true => {
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("hello!".to_string())))
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player Score HUD".to_string())))
                                         .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Example HUD".to_string())))
-                                        .unwrap();
-
-                                        sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Example HP".to_string())))
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player HP".to_string())))
                                         .unwrap();
 
                                         p1_pressed = false;
@@ -211,25 +207,108 @@ impl AltctrlInterface for Garfanzo {
                                         // Create scoreboard
                                         sender_clone
                                         .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
-                                            id: "Example HUD".to_string(),
-                                            content: "Player 1: 300pts\nPlayer 2: 432pts\nPlayer 3: 120pts\nPlayer 4: 38pts".to_string(), 
+                                            id: "Player Score HUD".to_string(),
+                                            content: "Player 1: 300pts    Player 2: 432pts    Player 3: 120pts    Player 4: 38pts".to_string(), 
                                             x_pos: 1, y_pos: 8, width: 20, height: 5 })))
                                         .unwrap();
 
 
                                         sender_clone
                                         .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
-                                            id: "Example HP".to_string(),
-                                            content: "Player 1: 20HP\nPlayer 2: 28HP\nPlayer 3: 12HP\nPlayer 4: 3HP".to_string(), 
+                                            id: "Player HP".to_string(),
+                                            content: "Player 1: 20HP      Player 2: 28HP      Player 3: 12HP      Player 4: 3HP".to_string(), 
                                             x_pos: 1, y_pos: 16, width: 20, height: 5 })))
                                         .unwrap();
                                         p1_pressed = true;
                                     },
                                 }
-
                             },
-                            Port::P2 => {},
-                            Port::P3 => {},
+                            Port::P2 => {
+                                match p2_pressed {
+                                    true => {
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss HP".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss Abilities".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Hello!".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player Score HUD".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player HP".to_string())))
+                                        .unwrap();
+
+                                        p2_pressed = false;
+
+                                    },
+                                    false => {
+                                        // Create scoreboard
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
+                                            id: "Boss HP".to_string(),
+                                            content: "[||||||||||||||||||||]".to_string(), 
+                                            x_pos: 20, y_pos: 8, width: 24, height: 2 })))
+                                        .unwrap();
+
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
+                                            id: "Boss Abilities".to_string(),
+                                            content: "Big P A W N C H     Fireball           Gravity OFF".to_string(), 
+                                            x_pos: 20, y_pos: 16, width: 20, height: 4 })))
+                                        .unwrap();
+                                        p2_pressed = true;
+                                    },
+                                }
+                            },
+                            Port::P3 => {
+                                match p3_pressed {
+                                    true => {
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Event".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss HP".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss Abilities".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Hello!".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player Score HUD".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player HP".to_string())))
+                                        .unwrap();
+
+                                        p3_pressed = false;
+                                    },
+                                    false => {
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
+                                            id: "Event".to_string(),
+                                            content: "ROUND EVENT ACTIVE!!!".to_string(),
+                                            x_pos: 15, y_pos: 15, width: 20, height: 2 })))
+                                        .unwrap();
+                                        p3_pressed = true;
+                                    },
+                                }
+                            },
                             _ => {},
                         }
                     }

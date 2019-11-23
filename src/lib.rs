@@ -167,6 +167,15 @@ impl AltctrlInterface for Garfanzo {
                                         sender_clone
                                         .send(Event::Gui(gui::GuiEvent::DestroyWindow("hello!".to_string())))
                                         .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Example HUD".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Example HP".to_string())))
+                                        .unwrap();
+
                                         p0_pressed = false;
                                     },
                                     false => {
@@ -184,13 +193,17 @@ impl AltctrlInterface for Garfanzo {
                                 match p1_pressed {
                                     true => {
                                         sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("hello!".to_string())))
+                                        .unwrap();
+
+                                        sender_clone
                                         .send(Event::Gui(gui::GuiEvent::DestroyWindow("Example HUD".to_string())))
                                         .unwrap();
-                                        p1_pressed = false;
 
                                         sender_clone
                                         .send(Event::Gui(gui::GuiEvent::DestroyWindow("Example HP".to_string())))
                                         .unwrap();
+
                                         p1_pressed = false;
 
                                     },
@@ -200,7 +213,7 @@ impl AltctrlInterface for Garfanzo {
                                         .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
                                             id: "Example HUD".to_string(),
                                             content: "Player 1: 300pts\nPlayer 2: 432pts\nPlayer 3: 120pts\nPlayer 4: 38pts".to_string(), 
-                                            x_pos: 1, y_pos: 8, width: 10, height: 15 })))
+                                            x_pos: 1, y_pos: 8, width: 20, height: 5 })))
                                         .unwrap();
 
 
@@ -208,7 +221,7 @@ impl AltctrlInterface for Garfanzo {
                                         .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
                                             id: "Example HP".to_string(),
                                             content: "Player 1: 20HP\nPlayer 2: 28HP\nPlayer 3: 12HP\nPlayer 4: 3HP".to_string(), 
-                                            x_pos: 20, y_pos: 8, width: 10, height: 15 })))
+                                            x_pos: 1, y_pos: 16, width: 20, height: 5 })))
                                         .unwrap();
                                         p1_pressed = true;
                                     },

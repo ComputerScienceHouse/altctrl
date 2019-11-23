@@ -5,7 +5,7 @@ pub mod gui;
 pub mod i2c;
 pub mod protocol;
 
-use protocol::{Device, IncomingMsg, OutgoingMsg, Port, NewWindow};
+use protocol::{Device, IncomingMsg, NewWindow, OutgoingMsg, Port};
 use serialport::prelude::*;
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
@@ -153,6 +153,10 @@ impl AltctrlInterface for Garfanzo {
             let mut p2_pressed = false;
             let mut p3_pressed = false;
 
+            let port_map = [Port::P0, Port::P1, Port::P2, Port::P3];
+            let mut port_struct = [false, false, false, false];
+            let mut seed = 69420;
+
             for message in serial_receiver.iter() {
                 match message {
                     SerialEvent::Pressed(device, button) => {
@@ -160,24 +164,48 @@ impl AltctrlInterface for Garfanzo {
                         sender_clone
                             .send(Event::Gui(gui::GuiEvent::Log(string)))
                             .unwrap();
+
                         match button {
                             Port::P0 => {
+                                if (port_struct[Port::P0 as usize]) {
+                                    seed = (seed ^ 69) % 123456;
+                                    port_struct[0] = false;
+                                    port_struct[seed % 4] = true;
+
+                                    sender_clone
+                                        .send(Event::I2C(i2c::I2CEvent::Off(device, Port::P0)))
+                                        .unwrap();
+
+                                    sender_clone
+                                        .send(Event::I2C(i2c::I2CEvent::Off(
+                                            device,
+                                            port_map[seed % 4],
+                                        )))
+                                        .unwrap();
+                                }
+
                                 match p0_pressed {
                                     true => {
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Hello!".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Hello!".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player Score HUD".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Player Score HUD".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player HP".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Player HP".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         p0_pressed = false;
-                                    },
+                                    }
                                     false => {
                                         sender_clone
                                         .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
@@ -186,23 +214,43 @@ impl AltctrlInterface for Garfanzo {
                                             x_pos: 10, y_pos: 10, width: 20, height: 10 })))
                                         .unwrap();
                                         p0_pressed = true;
-                                    },
+                                    }
                                 }
-                            },
+                            }
                             Port::P1 => {
+                                if (port_struct[Port::P1 as usize]) {
+                                    seed = (seed ^ 69) % 123456;
+                                    port_struct[1] = false;
+                                    port_struct[seed % 4] = true;
+
+                                    sender_clone
+                                        .send(Event::I2C(i2c::I2CEvent::Off(device, Port::P1)))
+                                        .unwrap();
+
+                                    sender_clone
+                                        .send(Event::I2C(i2c::I2CEvent::Off(
+                                            device,
+                                            port_map[seed % 4],
+                                        )))
+                                        .unwrap();
+                                }
+
                                 match p1_pressed {
                                     true => {
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player Score HUD".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Player Score HUD".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player HP".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Player HP".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         p1_pressed = false;
-
-                                    },
+                                    }
                                     false => {
                                         // Create scoreboard
                                         sender_clone
@@ -212,7 +260,6 @@ impl AltctrlInterface for Garfanzo {
                                             x_pos: 1, y_pos: 8, width: 20, height: 5 })))
                                         .unwrap();
 
-
                                         sender_clone
                                         .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
                                             id: "Player HP".to_string(),
@@ -220,44 +267,75 @@ impl AltctrlInterface for Garfanzo {
                                             x_pos: 1, y_pos: 16, width: 20, height: 5 })))
                                         .unwrap();
                                         p1_pressed = true;
-                                    },
+                                    }
                                 }
-                            },
+                            }
                             Port::P2 => {
+                                if (port_struct[Port::P2 as usize]) {
+                                    seed = (seed ^ 69) % 123456;
+                                    port_struct[2] = false;
+                                    port_struct[seed % 4] = true;
+
+                                    sender_clone
+                                        .send(Event::I2C(i2c::I2CEvent::Off(device, Port::P2)))
+                                        .unwrap();
+
+                                    sender_clone
+                                        .send(Event::I2C(i2c::I2CEvent::Off(
+                                            device,
+                                            port_map[seed % 4],
+                                        )))
+                                        .unwrap();
+                                }
+
                                 match p2_pressed {
                                     true => {
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss HP".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Boss HP".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss Abilities".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Boss Abilities".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Hello!".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Hello!".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player Score HUD".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Player Score HUD".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player HP".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Player HP".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         p2_pressed = false;
-
-                                    },
+                                    }
                                     false => {
                                         // Create scoreboard
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
-                                            id: "Boss HP".to_string(),
-                                            content: "[||||||||||||||||||||]".to_string(), 
-                                            x_pos: 20, y_pos: 8, width: 24, height: 2 })))
-                                        .unwrap();
-
+                                            .send(Event::Gui(gui::GuiEvent::CreateWindow(
+                                                NewWindow {
+                                                    id: "Boss HP".to_string(),
+                                                    content: "[||||||||||||||||||||]".to_string(),
+                                                    x_pos: 20,
+                                                    y_pos: 8,
+                                                    width: 24,
+                                                    height: 2,
+                                                },
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
                                         .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
@@ -266,58 +344,87 @@ impl AltctrlInterface for Garfanzo {
                                             x_pos: 20, y_pos: 16, width: 20, height: 4 })))
                                         .unwrap();
                                         p2_pressed = true;
-                                    },
+                                    }
                                 }
-                            },
+                            }
                             Port::P3 => {
+                                if (port_struct[Port::P3 as usize]) {
+                                    seed = seed ^ 69 % 123456;
+                                    port_struct[3] = false;
+                                    port_struct[seed % 4] = true;
+
+                                    sender_clone
+                                        .send(Event::I2C(i2c::I2CEvent::Off(device, Port::P3)))
+                                        .unwrap();
+
+                                    sender_clone
+                                        .send(Event::I2C(i2c::I2CEvent::Off(
+                                            device,
+                                            port_map[seed % 4],
+                                        )))
+                                        .unwrap();
+                                }
                                 match p3_pressed {
                                     true => {
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Event".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Event".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss HP".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Boss HP".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Boss Abilities".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Boss Abilities".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Hello!".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Hello!".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player Score HUD".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Player Score HUD".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("Player HP".to_string())))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::DestroyWindow(
+                                                "Player HP".to_string(),
+                                            )))
+                                            .unwrap();
 
                                         p3_pressed = false;
-                                    },
+                                    }
                                     false => {
                                         sender_clone
-                                        .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow {
-                                            id: "Event".to_string(),
-                                            content: "ROUND EVENT ACTIVE!!!".to_string(),
-                                            x_pos: 15, y_pos: 15, width: 20, height: 2 })))
-                                        .unwrap();
+                                            .send(Event::Gui(gui::GuiEvent::CreateWindow(
+                                                NewWindow {
+                                                    id: "Event".to_string(),
+                                                    content: "ROUND EVENT ACTIVE!!!".to_string(),
+                                                    x_pos: 15,
+                                                    y_pos: 15,
+                                                    width: 20,
+                                                    height: 2,
+                                                },
+                                            )))
+                                            .unwrap();
                                         p3_pressed = true;
-                                    },
+                                    }
                                 }
-                            },
-                            _ => {},
+                            }
+                            _ => {}
                         }
                     }
-                    _ => {} // SerialEvent::Released(device, button) => {
-                            //     let string = format!("Button released: {:?} {:?}", device, button);
-                            //     sender_clone
-                            //         .send(Event::Gui(gui::GuiEvent::Log(string)))
-                            //         .unwrap();
-                            // }
+                    _ => {}
                 }
             }
         });

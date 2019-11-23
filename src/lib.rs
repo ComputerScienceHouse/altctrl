@@ -11,7 +11,7 @@ use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
 use std::time::Duration;
 
-// Represents all messages sent between modules
+// Represents all messages sent between modulescd
 #[derive(Clone, Debug)]
 pub enum Event {
     I2C(i2c::I2CEvent),
@@ -156,6 +156,9 @@ impl AltctrlInterface for Garfanzo {
             let port_map = [Port::P0, Port::P1, Port::P2, Port::P3];
             let mut port_struct = [true, false, false, false];
             let mut seed = 69420;
+            let m = 5;
+            let a = 8121;
+            let c = 28411;
 
             sender_clone
                 .send(Event::I2C(i2c::I2CEvent::On(
@@ -175,7 +178,7 @@ impl AltctrlInterface for Garfanzo {
                         match button {
                             Port::P0 => {
                                 if (port_struct[Port::P0 as usize]) {
-                                    seed = (seed ^ 69) % 123456;
+                                    seed = (a * seed + c) % m;
                                     port_struct[0] = false;
                                     port_struct[seed % 4] = true;
 
@@ -247,7 +250,7 @@ impl AltctrlInterface for Garfanzo {
                             }
                             Port::P1 => {
                                 if (port_struct[Port::P1 as usize]) {
-                                    seed = (seed ^ 69) % 123456;
+                                    seed = (a * seed + c) % m;
                                     port_struct[1] = false;
                                     port_struct[seed % 4] = true;
 
@@ -327,7 +330,7 @@ impl AltctrlInterface for Garfanzo {
                             }
                             Port::P2 => {
                                 if (port_struct[Port::P2 as usize]) {
-                                    seed = (seed ^ 69) % 123456;
+                                    seed = (a * seed + c) % m;
                                     port_struct[2] = false;
                                     port_struct[seed % 4] = true;
 
@@ -413,7 +416,7 @@ impl AltctrlInterface for Garfanzo {
                             }
                             Port::P3 => {
                                 if (port_struct[Port::P3 as usize]) {
-                                    seed = seed ^ 69 % 123456;
+                                    seed = (a * seed + c) % m;
                                     port_struct[3] = false;
                                     port_struct[seed % 4] = true;
 

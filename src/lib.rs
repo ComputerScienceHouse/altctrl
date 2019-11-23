@@ -148,6 +148,11 @@ impl AltctrlInterface for Garfanzo {
         let sender_clone = sender.clone();
 
         thread::spawn(move || {
+            let mut p0_pressed = false;
+            let mut p1_pressed = false;
+            let mut p2_pressed = false;
+            let mut p3_pressed = false;
+
             for message in serial_receiver.iter() {
                 match message {
                     SerialEvent::Pressed(device, button) => {
@@ -157,20 +162,27 @@ impl AltctrlInterface for Garfanzo {
                             .unwrap();
                         match button {
                             Port::P0 => {
-                                sender_clone
-                                .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow { id: "hello".to_string(), content: "I am a window".to_string(), x_pos: 10, y_pos: 10, width: 10, height: 10 })))
-                                .unwrap();
+                                match p0_pressed {
+                                    true => {
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::DestroyWindow("hello".to_string())))
+                                        .unwrap();
+                                        p0_pressed = false;
+                                    },
+                                    false => {
+                                        sender_clone
+                                        .send(Event::Gui(gui::GuiEvent::CreateWindow(NewWindow { id: "hello".to_string(), content: "I am a window".to_string(), x_pos: 10, y_pos: 10, width: 10, height: 10 })))
+                                        .unwrap();
+                                        p0_pressed = true;
+                                    },
+                                }
                             },
                             Port::P1 => {
-                            sender_clone
-                            .send(Event::Gui(gui::GuiEvent::DestroyWindow("hello".to_string())))
-                            .unwrap();
                             },
                             Port::P2 => {},
                             Port::P3 => {},
                             _ => {},
                         }
-                        
                     }
                     _ => {} // SerialEvent::Released(device, button) => {
                             //     let string = format!("Button released: {:?} {:?}", device, button);

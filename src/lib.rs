@@ -213,6 +213,22 @@ impl AltctrlInterface for Garfanzo {
                                     sender.send(Event::Gui(gui::GuiEvent::Log(format!("Invalid command received. ({}) Please enter a window subcommand. (new, close, list)", command[1]).to_string()))).unwrap();
                                 }
                             },
+                            "on" => {
+                                let device: Device = serde_json::from_str(command[1]).unwrap();
+                                let port: Port = serde_json::from_str(command[2]).unwrap();
+
+                                sender
+                                    .send(Event::I2C(i2c::I2CEvent::On(device, port)))
+                                    .unwrap();
+                            }
+                            "off" => {
+                                let device: Device = serde_json::from_str(command[1]).unwrap();
+                                let port: Port = serde_json::from_str(command[2]).unwrap();
+
+                                sender
+                                    .send(Event::I2C(i2c::I2CEvent::Off(device, port)))
+                                    .unwrap();
+                            }
                             "clear" => {
                                 sender.send(Event::Gui(gui::GuiEvent::Clear())).unwrap();
                             }

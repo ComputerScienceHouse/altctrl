@@ -156,12 +156,12 @@ impl AltctrlInterface for Garfanzo {
                             .send(Event::Gui(gui::GuiEvent::Log(string)))
                             .unwrap();
                     }
-                    SerialEvent::Released(device, button) => {
-                        let string = format!("Button released: {:?} {:?}", device, button);
-                        sender_clone
-                            .send(Event::Gui(gui::GuiEvent::Log(string)))
-                            .unwrap();
-                    }
+                    _ => {} // SerialEvent::Released(device, button) => {
+                            //     let string = format!("Button released: {:?} {:?}", device, button);
+                            //     sender_clone
+                            //         .send(Event::Gui(gui::GuiEvent::Log(string)))
+                            //         .unwrap();
+                            // }
                 }
             }
         });

@@ -1,17 +1,6 @@
 use ncurses::*;
 use std::collections::HashMap;
 
-pub fn create_win(name: String, start_y: i32,
-                  start_x: i32,
-                  window_width: i32,
-                  window_height: i32, windows: &mut HashMap<String,WINDOW>) -> WINDOW {
-    let win = newwin(window_height, window_width, start_y, start_x);
-    box_(win, 0, 0);
-    wrefresh(win);
-    windows.insert(name, win);
-    win // *-ptr to return
-}
-
 pub fn destroy_win(win: WINDOW) {
     let ch = ' ' as chtype;
     wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
@@ -41,7 +30,7 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
     }
 }
 
-pub fn open_win(x_loc: i32,
+pub fn open_win( x_loc: i32,
                  y_loc: i32,
                  x_dim: i32,
                  y_dim: i32,
@@ -93,8 +82,7 @@ pub fn open_win(x_loc: i32,
     mvprintw(start_y, start_x+1, &title);
     attroff(A_BOLD());
     } else {
-        // mvprintw(6, 0, "Hey! This name is already taken!");
-        logbuffer.insert(0, "Hey! This name is already taken!".to_string());
+        logbuffer.insert(0, "Error: This window name is already taken!".to_string());
         showlog(&logbuffer);
     }
 }

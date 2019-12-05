@@ -1,13 +1,6 @@
 use ncurses::*;
 use std::collections::HashMap;
 
-pub fn destroy_win(win: WINDOW) {
-    let ch = ' ' as chtype;
-    wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
-    wrefresh(win);
-    delwin(win);
-}
-
 pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer: &mut Vec<String>) {
     match window.as_ref() {
         "mainwindow" => {
@@ -17,7 +10,11 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
         _ => {
             match windows.get(&window) {
                 Some(&win) => {
-                    destroy_win(win);
+                    //destroy_win(win);
+                    let ch = ' ' as chtype;
+                    wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
+                    wrefresh(win);
+                    delwin(win);
                     windows.remove(&window);
                     logbuffer.insert(0, format!("Window \"{}\" destroyed.", window).to_string());
                     showlog(&logbuffer);
@@ -30,7 +27,7 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
     }
 }
 
-pub fn open_win( x_loc: i32,
+pub fn open_win(x_loc: i32,
                  y_loc: i32,
                  x_dim: i32,
                  y_dim: i32,
@@ -82,7 +79,8 @@ pub fn open_win( x_loc: i32,
     mvprintw(start_y, start_x+1, &title);
     attroff(A_BOLD());
     } else {
-        logbuffer.insert(0, "Error: This window name is already taken!".to_string());
+        // mvprintw(6, 0, "Hey! This name is already taken!");
+        logbuffer.insert(0, "Hey! This name is already taken!".to_string());
         showlog(&logbuffer);
     }
 }

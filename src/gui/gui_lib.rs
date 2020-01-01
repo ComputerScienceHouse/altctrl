@@ -1,24 +1,6 @@
 use ncurses::*;
 use std::collections::HashMap;
 
-pub fn create_win(name: String, start_y: i32,
-                  start_x: i32,
-                  window_width: i32,
-                  window_height: i32, windows: &mut HashMap<String,WINDOW>) -> WINDOW {
-    let win = newwin(window_height, window_width, start_y, start_x);
-    box_(win, 0, 0);
-    wrefresh(win);
-    windows.insert(name, win);
-    win // *-ptr to return
-}
-
-pub fn destroy_win(win: WINDOW) {
-    let ch = ' ' as chtype;
-    wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
-    wrefresh(win);
-    delwin(win);
-}
-
 pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer: &mut Vec<String>) {
     match window.as_ref() {
         "mainwindow" => {
@@ -28,7 +10,11 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
         _ => {
             match windows.get(&window) {
                 Some(&win) => {
-                    destroy_win(win);
+                    //destroy_win(win);
+                    let ch = ' ' as chtype;
+                    wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
+                    wrefresh(win);
+                    delwin(win);
                     windows.remove(&window);
                     logbuffer.insert(0, format!("Window \"{}\" destroyed.", window).to_string());
                     showlog(&logbuffer);

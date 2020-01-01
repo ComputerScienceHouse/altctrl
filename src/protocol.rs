@@ -15,6 +15,15 @@ pub struct NewWindow {
     pub height: i32,
 }
 
+//Contents of window. Text? Progress bar? List? (Needs titles for stuff as well as text decoration such as bold, invert, and flashing)
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum WindowContent {
+    Text,
+    List,
+    Chart,
+    ProgressBar,
+}
+
 // Represents a device in the system
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum Device {

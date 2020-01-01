@@ -88,10 +88,6 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
         }
         showlog(&logbuffer);
         refresh();
-        // let ch = getch();
-        // if ch == KEY_F(1) {
-        //     break;
-        // }
     }
     endwin();
     std::process::exit(0);

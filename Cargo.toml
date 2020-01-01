@@ -1,5 +1,5 @@
 [package]
-name = "gddimagine2020-altctrl-deathpanel"
+name = "altctrl"
 version = "0.1.0"
 authors = ["joseph <josephbgerber@gmail.com>", "willnilges <will.nilges@gmail.com>"]
 edition = "2018"
@@ -8,18 +8,18 @@ edition = "2018"
 
 [dependencies]
 serde = {version = "1.0.102", features = ["derive"] }
+serde_json = "1.0"
 bytes = "0.4.12"
 serialport = "3.3.0"
 ncurses = "5.99.0"
 
+i2cdev = "0.4.2"
+rppal = "0.11.3"
+
 [lib]
-name = "gui_lib"
-path = "src/gui/gui_lib.rs"
-
-[[bin]]
 name = "altctrl"
-path = "src/main.rs"
+path = "src/lib.rs"
 
 [[bin]]
-name = "garfanzo"
-path = "src/garfanzo.rs"
+name = "main"
+path = "src/bin/main.rs"

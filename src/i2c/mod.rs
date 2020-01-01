@@ -51,7 +51,20 @@ pub fn initialize(tx: Sender<Event>) -> I2CStruct {
         .expect("A new i2c device should have been created");
 
     //initialize the I2C device
-    initialize_i2c_device(&mut i2c_device_0).expect("An i2c device should have been initialied");
+    let debug = std::env::args().nth(1).expect("should get 2nd argument");
+    if debug == "garfdebug".to_string() {
+        let init_i2c_result = initialize_i2c_device(&mut i2c_device_0);
+        match init_i2c_result {
+            Err(_e) => {
+                dbg!("Could not initialize an i2c device.\nWillard's probably doing some dumb shit again.");
+            },
+            _ => {},
+        }
+    } else {
+        initialize_i2c_device(&mut i2c_device_0).expect("An i2c device should have been initialized");
+    }
+    
+    
 
     //Initialize the Ports connected to the device
     let port_struct_0 = PortStruct::initialize_device_buttons(Device::D0);

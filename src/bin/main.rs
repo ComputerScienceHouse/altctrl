@@ -6,11 +6,11 @@ use altctrl::{i2c, gui, Event, AltctrlInterface};
 // Handles the setup of all the modules in the project
 // Handles message schedule
 fn main() {
-    let interface = std::env::args().nth(0).expect("should get first argument");
+    let interface = std::env::args().nth(1).expect("should get first argument");
 
     let interface: Box<dyn AltctrlInterface + Send> = match &*interface {
         "chungo" => Box::new(altctrl::Chungo),
-        "garfanzo" => Box::new(altctrl::Garfanzo),
+        "garfanzo" | "garfdebug" => Box::new(altctrl::Garfanzo),
         "fatkhiyev" => Box::new(altctrl::Fatkhiyev),
         _ => {
             println!("Invalid interface!");

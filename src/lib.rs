@@ -46,7 +46,6 @@ pub trait AltctrlInterface {
 }
 
 pub struct Chungo;
-
 impl AltctrlInterface for Chungo {
     fn launch(&self, sender: Sender<Event>, serial_receiver: Receiver<SerialEvent>) {
         // Open the serial port
@@ -96,7 +95,6 @@ impl AltctrlInterface for Chungo {
 }
 
 pub struct Fatkhiyev;
-
 impl AltctrlInterface for Fatkhiyev {
     fn launch(&self, sender: Sender<Event>, serial_receiver: Receiver<SerialEvent>) {
         // Create listener for a tcp connection of port 6969
@@ -142,7 +140,6 @@ impl AltctrlInterface for Fatkhiyev {
 }
 
 pub struct Garfanzo;
-
 impl AltctrlInterface for Garfanzo {
     fn launch(&self, sender: Sender<Event>, serial_receiver: Receiver<SerialEvent>) {
         let sender_clone = sender.clone();
@@ -188,12 +185,13 @@ impl AltctrlInterface for Garfanzo {
                                             )))
                                             .unwrap();
                                         let window = protocol::NewWindow {
-                                            id: command[2].to_string(),
-                                            content: command[3].to_string(),
-                                            x_pos: command[4].parse::<i32>().unwrap(),
-                                            y_pos: command[5].parse::<i32>().unwrap(),
-                                            width: command[6].parse::<i32>().unwrap(),
-                                            height: command[7].parse::<i32>().unwrap(),
+                                            id:      command[2].to_string(),
+                                            content: command[3],
+                                            style:   command[4],
+                                            x_pos:   command[5].parse::<i32>().unwrap(),
+                                            y_pos:   command[6].parse::<i32>().unwrap(),
+                                            width:   command[7].parse::<i32>().unwrap(),
+                                            height:  command[8].parse::<i32>().unwrap(),
                                         };
                                         sender
                                             .send(Event::Gui(gui::GuiEvent::CreateWindow(window)))

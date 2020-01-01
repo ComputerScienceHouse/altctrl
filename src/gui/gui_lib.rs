@@ -1,5 +1,6 @@
 use ncurses::*;
 use std::collections::HashMap;
+use crate::protocol::{WindowContent, WindowStyle};
 
 pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer: &mut Vec<String>) {
     match window.as_ref() {
@@ -27,13 +28,14 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
 }
 
 pub fn open_win(x_loc: i32,
-                 y_loc: i32,
-                 x_dim: i32,
-                 y_dim: i32,
-                 name: &str,
-                 message: &str,
-                 windows: &mut HashMap<String,WINDOW>,
-                 logbuffer: &mut Vec<String>) {
+                y_loc: i32,
+                x_dim: i32,
+                y_dim: i32,
+                name: &str,
+                content: WindowContent,
+                style: WindowStyle,
+                windows: &mut HashMap<String,WINDOW>,
+                logbuffer: &mut Vec<String>) {
     if !windows.contains_key(name){
     let mut max_x = 0;
     let mut max_y = 0;
@@ -55,22 +57,25 @@ pub fn open_win(x_loc: i32,
     }
     let win = newwin((y_dim)+2, (x_dim)+2, start_y, start_x);
     windows.insert(name.to_string(), win);
-    if message.len() > (x_dim as usize) {
-        let real_x_dim = x_dim as usize;
-        for i in 0..message.len(){
-            let i_i32 = i as i32;
-            if i == 0 {
-                mvprintw(start_y+1+i_i32, start_x+1, &message[0..real_x_dim]);
-            } else if real_x_dim*(i+1) >= message.len() {
-                mvprintw(start_y+1+i_i32, start_x+1, &message[real_x_dim*(i)..]);
-                break;
-            } else {
-                mvprintw(start_y+1+i_i32, start_x+1, &message[real_x_dim*(i)..real_x_dim*(i+1)]);
+    if let Some(message) = content.text {
+        if message.len() > (x_dim as usize) {
+            let real_x_dim = x_dim as usize;
+            for i in 0..message.len(){
+                let i_i32 = i as i32;
+                if i == 0 {
+                    mvprintw(start_y+1+i_i32, start_x+1, &message[0..real_x_dim]);
+                } else if real_x_dim*(i+1) >= message.len() {
+                    mvprintw(start_y+1+i_i32, start_x+1, &message[real_x_dim*(i)..]);
+                    break;
+                } else {
+                    mvprintw(start_y+1+i_i32, start_x+1, &message[real_x_dim*(i)..real_x_dim*(i+1)]);
+                }
             }
+        } else {
+            mvprintw(start_y+1, start_x+1, &message);
         }
-    } else {
-        mvprintw(start_y+1, start_x+1, &message);
     }
+    
     box_(win, 0, 0);
     wrefresh(win);
     attron(A_BOLD());
@@ -78,8 +83,7 @@ pub fn open_win(x_loc: i32,
     mvprintw(start_y, start_x+1, &title);
     attroff(A_BOLD());
     } else {
-        // mvprintw(6, 0, "Hey! This name is already taken!");
-        logbuffer.insert(0, "Hey! This name is already taken!".to_string());
+        logbuffer.insert(0, "This name is already taken!".to_string());
         showlog(&logbuffer);
     }
 }

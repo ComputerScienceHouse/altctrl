@@ -57,13 +57,8 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
                     new_window.width,
                     new_window.height,
                     &new_window.id,
-<<<<<<< HEAD
                     &new_window.content,
                     &new_window.message,
-=======
-                    new_window.content,
-                    new_window.style,
->>>>>>> ef72d5766baf7cd45b97e41942256d1a091a2bda
                     &mut windows,
                     &mut logbuffer,
                 );

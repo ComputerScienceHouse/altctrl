@@ -1,6 +1,5 @@
 use ncurses::*;
 use std::collections::HashMap;
-use crate::protocol::{WindowContent, WindowStyle};
 
 pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer: &mut Vec<String>) {
     match window.as_ref() {

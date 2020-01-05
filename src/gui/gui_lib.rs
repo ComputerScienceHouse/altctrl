@@ -112,6 +112,10 @@ pub fn open_win(x_loc: i32,
                 mvprintw(start_y+1, start_x+1+(i as i32), " ");
             }
             attroff(A_STANDOUT());
+            attron(A_BOLD());
+            let progress_string = format!("|{}/{}|", lower, upper);
+            mvprintw(start_y+y_dim+1, start_x+1, &progress_string);
+            attroff(A_BOLD());
         },
         _ => {
             logbuffer.insert(0, "Error. Invalid content type.".to_string());

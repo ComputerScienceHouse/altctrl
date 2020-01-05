@@ -25,6 +25,7 @@ pub fn close_win(window: String, windows: &mut HashMap<String,(WINDOW, WindowDat
             }
         }
     }
+    redraw(windows);
 }
 
 pub fn clear_windows(windows: &mut HashMap<String, (WINDOW, WindowData)>, logbuffer: &mut Vec<String>) {
@@ -123,7 +124,7 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
             }
             attroff(A_UNDERLINE());
         },
-        "ProgressBar" | "PB" | "ProgBar" => { // Display a bar of some sort in a window.
+        "ProgressBar" | "PB" | "ProgBar" | "Bar" | "B" => { // Display a bar of some sort in a window.
                                               // (Window heights of 1 work best).
             let metrics = message.split('|').collect::<Vec<&str>>();
             let lower = metrics[0].parse::<f32>().unwrap();

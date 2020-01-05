@@ -1,5 +1,6 @@
 use ncurses::*;
 use std::collections::HashMap;
+use crate::protocol::{WindowContent, WindowStyle};
 
 pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer: &mut Vec<String>) {
     match window.as_ref() {
@@ -56,11 +57,9 @@ pub fn open_win(x_loc: i32,
     }
     let win = newwin((y_dim)+2, (x_dim)+2, start_y, start_x);
     windows.insert(name.to_string(), win);
-
     // Match content, then use that to figure out the data.
     match content {
-        "Text" | "T" => {
-            //WindowContent::Text
+        "Text" | "T" => { // Display whatever text you need in a normal, window wrapping fashion.
             if message.len() > (x_dim as usize) {
                 let real_x_dim = x_dim as usize;
                 for i in 0..message.len(){
@@ -77,7 +76,7 @@ pub fn open_win(x_loc: i32,
                 mvprintw(start_y+1, start_x+1, &message);
             }
         },
-        "List" | "L" => {
+        "List" | "L" => { // Display a list of items or options
             let list_data = message.split('|').collect::<Vec<&str>>();
             attron(A_UNDERLINE());
             for i in 0..list_data.len() {
@@ -88,7 +87,7 @@ pub fn open_win(x_loc: i32,
             }
             attroff(A_UNDERLINE());
         },
-        "Scoreboard" | "S" | "Score" => {
+        "Scoreboard" | "S" | "Score" => { // Like a list, but you can pair numbers with it. Unsorted.
             let list_data = message.split('|').collect::<Vec<&str>>();
             attron(A_UNDERLINE());
             for i in 0..list_data.len() {
@@ -103,12 +102,13 @@ pub fn open_win(x_loc: i32,
             }
             attroff(A_UNDERLINE());
         },
-        "ProgressBar" | "PB" | "ProgBar" => {
+        "ProgressBar" | "PB" | "ProgBar" => { // Display a bar of some sort in a window.
+                                              // (Window heights of 1 work best).
             let metrics = message.split('|').collect::<Vec<&str>>();
             let lower = metrics[0].parse::<f32>().unwrap();
             let upper = metrics[1].parse::<f32>().unwrap();
-            let absolute_progress = ((lower/upper)*(x_dim as f32)) as i32;
-            attron(A_STANDOUT());
+            let absolute_progress = ((lower/upper)*(x_dim as f32)) as i32; // How far across the window the bar is
+            attron(A_STANDOUT()); // Solid bar style. I guess TODO: Make more styles?
             for i in 0..absolute_progress {
                 mvprintw(start_y+1, start_x+1+(i as i32), " ");
             }
@@ -119,6 +119,7 @@ pub fn open_win(x_loc: i32,
             showlog(&logbuffer);
         },
     }
+    
     box_(win, 0, 0);
     wrefresh(win);
     attron(A_BOLD());
@@ -126,7 +127,7 @@ pub fn open_win(x_loc: i32,
     mvprintw(start_y, start_x+1, &title);
     attroff(A_BOLD());
     } else {
-        logbuffer.insert(0, "Hey! This name is already taken!".to_string());
+        logbuffer.insert(0, "This window name is already taken!".to_string());
         showlog(&logbuffer);
     }
 }

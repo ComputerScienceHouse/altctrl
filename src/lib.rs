@@ -46,7 +46,6 @@ pub trait AltctrlInterface {
 }
 
 pub struct Chungo;
-
 impl AltctrlInterface for Chungo {
     fn launch(&self, sender: Sender<Event>, serial_receiver: Receiver<SerialEvent>) {
         // Open the serial port
@@ -96,7 +95,6 @@ impl AltctrlInterface for Chungo {
 }
 
 pub struct Fatkhiyev;
-
 impl AltctrlInterface for Fatkhiyev {
     fn launch(&self, sender: Sender<Event>, serial_receiver: Receiver<SerialEvent>) {
         // Create listener for a tcp connection of port 6969
@@ -142,7 +140,6 @@ impl AltctrlInterface for Fatkhiyev {
 }
 
 pub struct Garfanzo;
-
 impl AltctrlInterface for Garfanzo {
     fn launch(&self, sender: Sender<Event>, serial_receiver: Receiver<SerialEvent>) {
         let sender_clone = sender.clone();
@@ -178,6 +175,7 @@ impl AltctrlInterface for Garfanzo {
                                     .send(Event::Gui(gui::GuiEvent::Log(command[1].to_string())))
                                     .unwrap();
                             }
+<<<<<<< HEAD
                             "window" => {
                                 if command.len() > 1 {
                                     match command[1] {
@@ -213,6 +211,29 @@ impl AltctrlInterface for Garfanzo {
                                         _ => {
                                             sender.send(Event::Gui(gui::GuiEvent::Log(format!("Invalid command received. ({}) Please enter a window subcommand. (new, close, list)", command[1]).to_string()))).unwrap();
                                         }
+=======
+                            "window" => match command[1] {
+                                "new" => {
+                                    if command.len() == 8 {
+                                        sender
+                                            .send(Event::Gui(gui::GuiEvent::Log(
+                                                format!("Creating window, \"{}\"", command[2])
+                                                    .to_string(),
+                                            )))
+                                            .unwrap();
+                                        let window = protocol::NewWindow {
+                                            id:      command[2].to_string(),
+                                            content: command[3],
+                                            style:   command[4],
+                                            x_pos:   command[5].parse::<i32>().unwrap(),
+                                            y_pos:   command[6].parse::<i32>().unwrap(),
+                                            width:   command[7].parse::<i32>().unwrap(),
+                                            height:  command[8].parse::<i32>().unwrap(),
+                                        };
+                                        sender
+                                            .send(Event::Gui(gui::GuiEvent::CreateWindow(window)))
+                                            .unwrap();
+>>>>>>> ef72d5766baf7cd45b97e41942256d1a091a2bda
                                     }
                                 } else {
                                     sender.send(Event::Gui(gui::GuiEvent::Log(

@@ -8,21 +8,42 @@ use crate::SerialEvent;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NewWindow {
     pub id: String,
+<<<<<<< HEAD
     pub content: String,
     pub message: String,
+=======
+    pub content: WindowContent,
+    pub style: WindowStyle,
+>>>>>>> ef72d5766baf7cd45b97e41942256d1a091a2bda
     pub x_pos: i32,
     pub y_pos: i32,
     pub width: i32,
     pub height: i32,
 }
 
-//Contents of window. Text? Progress bar? List? (Needs titles for stuff as well as text decoration such as bold, invert, and flashing)
+//Contents of window.
 #[derive(Clone, Debug, Serialize, Deserialize)]
+<<<<<<< HEAD
 pub enum WindowContent {
     Text,
     List,
     Scoreboard,
     ProgressBar,
+=======
+pub struct WindowContent {
+    pub text: Option<String>,
+    pub list: Option<Vec<String>>,
+    pub progressBar: Option<(i32, i32)>,
+    /*pub Table: Option<Vec>,*/
+}
+
+// Decorate contents of window with different ncurses characteristics
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum WindowStyle {
+    Bold,
+    Invert,
+    Flashing,
+>>>>>>> ef72d5766baf7cd45b97e41942256d1a091a2bda
 }
 
 // Represents a device in the system

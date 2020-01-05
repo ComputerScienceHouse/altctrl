@@ -79,14 +79,13 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
                 logbuffer.insert(0, open_windows.to_string());
             }
             GuiEvent::Clear() => {
-                clear(); 
-                /*
-                let mut wumbows: std::collections::HashMap<String, WINDOW> = &mut windows;
-                for (key, value) in &windows {
-                    close_win(key.to_string(), &mut windows, &mut logbuffer);
-                }
+                clear();
+                clear_windows(&mut windows, &mut logbuffer);
+                // let wumbows = &windows;
+                // for (key, _value) in wumbows {
+                //     close_win(key.to_string(), &mut windows, &mut logbuffer);
+                // }
                 showlog(&logbuffer);
-                */
             }
         }
         showlog(&logbuffer);

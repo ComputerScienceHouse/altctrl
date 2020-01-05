@@ -26,6 +26,27 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
     }
 }
 
+pub fn clear_windows(windows: &mut HashMap<String, WINDOW>, logbuffer: &mut Vec<String>) {
+    // let mut WINDOW;
+    for (title, win) in &*windows {
+        match title.as_ref() {
+            "mainwindow" => { },
+            _ => {
+                let ch = ' ' as chtype;
+                wborder(*win, ch, ch, ch, ch, ch, ch, ch, ch);
+                wrefresh(*win);
+                delwin(*win);
+                logbuffer.insert(0, format!("Window \"{}\" destroyed.", title).to_string());
+                showlog(&logbuffer);
+            }
+        }
+    }
+    windows.clear();
+    logbuffer.insert(0, "Cleared all windows.".to_string());
+    showlog(&logbuffer);
+}
+
+
 pub fn open_win(x_loc: i32,
                  y_loc: i32,
                  x_dim: i32,
@@ -112,6 +133,7 @@ pub fn open_win(x_loc: i32,
                 mvprintw(start_y+1, start_x+1+(i as i32), " ");
             }
             attroff(A_STANDOUT());
+            // Print the value
             attron(A_BOLD());
             let progress_string = format!("|{}/{}|", lower, upper);
             mvprintw(start_y+y_dim+1, start_x+1, &progress_string);
@@ -122,7 +144,6 @@ pub fn open_win(x_loc: i32,
             showlog(&logbuffer);
         },
     }
-    
     box_(win, 0, 0);
     wrefresh(win);
     attron(A_BOLD());

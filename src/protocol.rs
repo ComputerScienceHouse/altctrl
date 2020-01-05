@@ -9,18 +9,19 @@ use crate::SerialEvent;
 pub struct NewWindow {
     pub id: String,
     pub content: String,
+    pub message: String,
     pub x_pos: i32,
     pub y_pos: i32,
     pub width: i32,
     pub height: i32,
 }
 
-//Contents of window. Text? Progress bar? List? (Needs titles for stuff as well as text decoration such as bold, invert, and flashing)
+//Contents of window.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum WindowContent {
     Text,
     List,
-    Chart,
+    Scoreboard,
     ProgressBar,
 }
 

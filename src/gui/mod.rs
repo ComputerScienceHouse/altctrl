@@ -4,13 +4,13 @@ use std::sync::mpsc::{Receiver, Sender};
 
 pub mod gui_lib;
 
-use crate::protocol::NewWindow;
+use crate::protocol::WindowData;
 use crate::Event;
 use gui_lib::*;
 
 #[derive(Clone, Debug)]
 pub enum GuiEvent {
-    CreateWindow(NewWindow),
+    CreateWindow(WindowData),
     DestroyWindow(String),
     Log(String),
     List(),
@@ -31,7 +31,7 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
 
     // Set up omniscient stuff
     // HashMap of active windows, so that we know what's bonkin'
-    let mut windows: std::collections::HashMap<String, WINDOW> = HashMap::new();
+    let mut windows: std::collections::HashMap<String, (WINDOW, WindowData)> = HashMap::new();
     // Log buffer to use for keeping track of command output.
     let mut logbuffer: Vec<String> = Vec::new();
     for _i in 0..5 {
@@ -51,17 +51,7 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
         refresh();
         match message {
             GuiEvent::CreateWindow(new_window) => {
-                open_win(
-                    new_window.x_pos,
-                    new_window.y_pos,
-                    new_window.width,
-                    new_window.height,
-                    &new_window.id,
-                    &new_window.content,
-                    &new_window.message,
-                    &mut windows,
-                    &mut logbuffer,
-                );
+                open_win(new_window, &mut windows, &mut logbuffer);
             }
             GuiEvent::DestroyWindow(id) => {
                 close_win(id, &mut windows, &mut logbuffer);
@@ -79,14 +69,13 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
                 logbuffer.insert(0, open_windows.to_string());
             }
             GuiEvent::Clear() => {
-                clear(); 
-                /*
-                let mut wumbows: std::collections::HashMap<String, WINDOW> = &mut windows;
-                for (key, value) in &windows {
-                    close_win(key.to_string(), &mut windows, &mut logbuffer);
-                }
+                clear();
+                clear_windows(&mut windows, &mut logbuffer);
+                // let wumbows = &windows;
+                // for (key, _value) in wumbows {
+                //     close_win(key.to_string(), &mut windows, &mut logbuffer);
+                // }
                 showlog(&logbuffer);
-                */
             }
         }
         showlog(&logbuffer);

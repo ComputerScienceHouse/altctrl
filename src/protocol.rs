@@ -9,6 +9,7 @@ use crate::SerialEvent;
 pub struct NewWindow {
     pub id: String,
     pub content: String,
+    pub message: String,
     pub x_pos: i32,
     pub y_pos: i32,
     pub width: i32,
@@ -20,7 +21,7 @@ pub struct NewWindow {
 pub enum WindowContent {
     Text,
     List,
-    Chart,
+    Scoreboard,
     ProgressBar,
 }
 

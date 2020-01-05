@@ -31,6 +31,7 @@ pub fn open_win(x_loc: i32,
                  x_dim: i32,
                  y_dim: i32,
                  name: &str,
+                 content: &str,
                  message: &str,
                  windows: &mut HashMap<String,WINDOW>,
                  logbuffer: &mut Vec<String>) {
@@ -55,21 +56,68 @@ pub fn open_win(x_loc: i32,
     }
     let win = newwin((y_dim)+2, (x_dim)+2, start_y, start_x);
     windows.insert(name.to_string(), win);
-    if message.len() > (x_dim as usize) {
-        let real_x_dim = x_dim as usize;
-        for i in 0..message.len(){
-            let i_i32 = i as i32;
-            if i == 0 {
-                mvprintw(start_y+1+i_i32, start_x+1, &message[0..real_x_dim]);
-            } else if real_x_dim*(i+1) >= message.len() {
-                mvprintw(start_y+1+i_i32, start_x+1, &message[real_x_dim*(i)..]);
-                break;
+
+    // Match content, then use that to figure out the data.
+    match content {
+        "Text" | "T" => {
+            //WindowContent::Text
+            if message.len() > (x_dim as usize) {
+                let real_x_dim = x_dim as usize;
+                for i in 0..message.len(){
+                    if i == 0 {
+                        mvprintw(start_y+1+(i as i32), start_x+1, &message[0..real_x_dim]);
+                    } else if real_x_dim*(i+1) >= message.len() {
+                        mvprintw(start_y+1+(i as i32), start_x+1, &message[real_x_dim*(i)..]);
+                        break;
+                    } else {
+                        mvprintw(start_y+1+(i as i32), start_x+1, &message[real_x_dim*(i)..real_x_dim*(i+1)]);
+                    }
+                }
             } else {
-                mvprintw(start_y+1+i_i32, start_x+1, &message[real_x_dim*(i)..real_x_dim*(i+1)]);
+                mvprintw(start_y+1, start_x+1, &message);
             }
-        }
-    } else {
-        mvprintw(start_y+1, start_x+1, &message);
+        },
+        "List" | "L" => {
+            let list_data = message.split('|').collect::<Vec<&str>>();
+            attron(A_UNDERLINE());
+            for i in 0..list_data.len() {
+                for j in 0..x_dim {
+                    mvprintw(start_y+1+(i as i32), start_x+1+(j as i32), " ");
+                }
+                mvprintw(start_y+1+(i as i32), start_x+1, &list_data[i]);
+            }
+            attroff(A_UNDERLINE());
+        },
+        "Scoreboard" | "S" | "Score" => {
+            let list_data = message.split('|').collect::<Vec<&str>>();
+            attron(A_UNDERLINE());
+            for i in 0..list_data.len() {
+                for j in 0..x_dim {
+                    mvprintw(start_y+1+(i as i32), start_x+1+(j as i32), " ");
+                }
+                let item_metric = &list_data[i].split('+').collect::<Vec<&str>>();
+                mvprintw(start_y+1+(i as i32), start_x+1, item_metric[0]);
+                attron(A_BOLD());
+                mvprintw(start_y+1+(i as i32), start_x+x_dim-3, item_metric[1]);
+                attroff(A_BOLD());
+            }
+            attroff(A_UNDERLINE());
+        },
+        "ProgressBar" | "PB" | "ProgBar" => {
+            let metrics = message.split('|').collect::<Vec<&str>>();
+            let lower = metrics[0].parse::<f32>().unwrap();
+            let upper = metrics[1].parse::<f32>().unwrap();
+            let absolute_progress = ((lower/upper)*(x_dim as f32)) as i32;
+            attron(A_STANDOUT());
+            for i in 0..absolute_progress {
+                mvprintw(start_y+1, start_x+1+(i as i32), " ");
+            }
+            attroff(A_STANDOUT());
+        },
+        _ => {
+            logbuffer.insert(0, "Error. Invalid content type.".to_string());
+            showlog(&logbuffer);
+        },
     }
     box_(win, 0, 0);
     wrefresh(win);
@@ -78,7 +126,6 @@ pub fn open_win(x_loc: i32,
     mvprintw(start_y, start_x+1, &title);
     attroff(A_BOLD());
     } else {
-        // mvprintw(6, 0, "Hey! This name is already taken!");
         logbuffer.insert(0, "Hey! This name is already taken!".to_string());
         showlog(&logbuffer);
     }

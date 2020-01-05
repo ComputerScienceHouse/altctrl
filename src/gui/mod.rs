@@ -58,6 +58,7 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
                     new_window.height,
                     &new_window.id,
                     &new_window.content,
+                    &new_window.message,
                     &mut windows,
                     &mut logbuffer,
                 );

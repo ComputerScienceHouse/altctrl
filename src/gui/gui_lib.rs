@@ -1,7 +1,8 @@
 use ncurses::*;
 use std::collections::HashMap;
+use crate::protocol::WindowData;
 
-pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer: &mut Vec<String>) {
+pub fn close_win(window: String, windows: &mut HashMap<String,(WINDOW, WindowData)>, logbuffer: &mut Vec<String>) {
     match window.as_ref() {
         "mainwindow" => {
             logbuffer.insert(0, "You idiot! Don't delete the main window!".to_string());
@@ -9,11 +10,11 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
         },
         _ => {
             match windows.get(&window) {
-                Some(&win) => {
+                Some(win) => {
                     let ch = ' ' as chtype;
-                    wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
-                    wrefresh(win);
-                    delwin(win);
+                    wborder(win.0, ch, ch, ch, ch, ch, ch, ch, ch);
+                    wrefresh(win.0);
+                    delwin(win.0);
                     windows.remove(&window);
                     logbuffer.insert(0, format!("Window \"{}\" destroyed.", window).to_string());
                     showlog(&logbuffer);
@@ -26,16 +27,16 @@ pub fn close_win(window: String, windows: &mut HashMap<String,WINDOW>, logbuffer
     }
 }
 
-pub fn clear_windows(windows: &mut HashMap<String, WINDOW>, logbuffer: &mut Vec<String>) {
+pub fn clear_windows(windows: &mut HashMap<String, (WINDOW, WindowData)>, logbuffer: &mut Vec<String>) {
     // let mut WINDOW;
     for (title, win) in &*windows {
         match title.as_ref() {
             "mainwindow" => { },
             _ => {
                 let ch = ' ' as chtype;
-                wborder(*win, ch, ch, ch, ch, ch, ch, ch, ch);
-                wrefresh(*win);
-                delwin(*win);
+                wborder(win.0, ch, ch, ch, ch, ch, ch, ch, ch);
+                wrefresh(win.0);
+                delwin(win.0);
                 logbuffer.insert(0, format!("Window \"{}\" destroyed.", title).to_string());
                 showlog(&logbuffer);
             }
@@ -46,17 +47,14 @@ pub fn clear_windows(windows: &mut HashMap<String, WINDOW>, logbuffer: &mut Vec<
     showlog(&logbuffer);
 }
 
-
-pub fn open_win(x_loc: i32,
-                 y_loc: i32,
-                 x_dim: i32,
-                 y_dim: i32,
-                 name: &str,
-                 content: &str,
-                 message: &str,
-                 windows: &mut HashMap<String,WINDOW>,
-                 logbuffer: &mut Vec<String>) {
-    if !windows.contains_key(name){
+pub fn draw_win(new_window: &WindowData, win: WINDOW) {
+    let x_loc = new_window.x_pos;
+    let y_loc = new_window.y_pos;
+    let x_dim = new_window.width;
+    let y_dim = new_window.height;
+    let name = &new_window.id;
+    let content = &new_window.content;
+    let message = &new_window.message;
     let mut max_x = 0;
     let mut max_y = 0;
     let start_x;
@@ -75,10 +73,9 @@ pub fn open_win(x_loc: i32,
             start_x = max_x;
         },
     }
-    let win = newwin((y_dim)+2, (x_dim)+2, start_y, start_x);
-    windows.insert(name.to_string(), win);
+    
     // Match content, then use that to figure out the data.
-    match content {
+    match content.as_str() {
         "Text" | "T" => { // Display whatever text you need in a normal, window wrapping fashion.
             if message.len() > (x_dim as usize) {
                 let real_x_dim = x_dim as usize;
@@ -107,7 +104,7 @@ pub fn open_win(x_loc: i32,
             }
             attroff(A_UNDERLINE());
         },
-        "Scoreboard" | "S" | "Score" => { // Like a list, but you can pair numbers with it. Unsorted.
+        "Scoreboard" | "S" | "SB" | "Score" => { // Like a list, but you can pair numbers with it. Unsorted.
             let list_data = message.split('|').collect::<Vec<&str>>();
             attron(A_UNDERLINE());
             for i in 0..list_data.len() {
@@ -115,9 +112,13 @@ pub fn open_win(x_loc: i32,
                     mvprintw(start_y+1+(i as i32), start_x+1+(j as i32), " ");
                 }
                 let item_metric = &list_data[i].split('+').collect::<Vec<&str>>();
-                mvprintw(start_y+1+(i as i32), start_x+1, item_metric[0]);
+                if item_metric.len() >= 1 { // I guess I can display a name with no score on the scoreboard.
+                    mvprintw(start_y+1+(i as i32), start_x+1, item_metric[0]);
+                }
                 attron(A_BOLD());
-                mvprintw(start_y+1+(i as i32), start_x+x_dim-3, item_metric[1]);
+                if item_metric.len() == 2 { // The damn thing should be at most two values
+                    mvprintw(start_y+1+(i as i32), start_x+x_dim-3, item_metric[1]);
+                }
                 attroff(A_BOLD());
             }
             attroff(A_UNDERLINE());
@@ -139,10 +140,7 @@ pub fn open_win(x_loc: i32,
             mvprintw(start_y+y_dim+1, start_x+1, &progress_string);
             attroff(A_BOLD());
         },
-        _ => {
-            logbuffer.insert(0, "Error. Invalid content type.".to_string());
-            showlog(&logbuffer);
-        },
+        _ => { dbg!("Dawg something totally whack happened I guess. o7 to your debugging.");},
     }
     box_(win, 0, 0);
     wrefresh(win);
@@ -150,12 +148,53 @@ pub fn open_win(x_loc: i32,
     let title = format!("|{}|", name);
     mvprintw(start_y, start_x+1, &title);
     attroff(A_BOLD());
+}
+
+// Opens a new window and keeps track of it in the window HashMap.
+pub fn open_win(new_window: WindowData,
+                windows: &mut HashMap<String, (WINDOW, WindowData)>,
+                logbuffer: &mut Vec<String>) {
+    let x_loc = new_window.x_pos;
+    let y_loc = new_window.y_pos;
+    let x_dim = new_window.width;
+    let y_dim = new_window.height;
+    let name = &new_window.id;
+    if !windows.contains_key(name){
+        let mut max_x = 0;
+        let mut max_y = 0;
+        let start_x;
+        let start_y;
+        match x_loc+y_loc {
+            -2 => {
+                /* Get the screen bounds. */
+                getmaxyx(stdscr(), &mut max_y, &mut max_x);
+                start_y = max_y / 2;
+                start_x = max_x / 2;
+            },
+            _ => {
+                max_x = x_loc;
+                max_y = y_loc;
+                start_y = max_y;
+                start_x = max_x;
+            },
+        }
+        let win = newwin((y_dim)+2, (x_dim)+2, start_y, start_x);
+        draw_win(&new_window, win);
+        windows.insert(name.to_string(), (win, new_window));
     } else {
         logbuffer.insert(0, "This window name is already taken!".to_string());
         showlog(&logbuffer);
     }
 }
 
+// Redraws the windows open on screen when anything changes that could expose hidden content such as a window closing. Shouldn't be used by the user.
+pub fn redraw(windows: &mut HashMap<String, (WINDOW, WindowData)>) {
+    for (_window,data) in windows {
+        draw_win(&data.1, data.0);
+    }
+}
+
+// Redraws the log.
 pub fn showlog(logbuffer: &Vec<String>) {
     let mut max_x = 0;
     let mut max_y = 0;
@@ -178,8 +217,6 @@ pub fn showlog(logbuffer: &Vec<String>) {
     mv(0,0);
     for i in (0..5).rev() {
         mv(4-(i as i32), 0);
-        // addstr(&i.to_string());
         addstr(logbuffer.get(i).unwrap());
-        // addstr("\n");
     }
 }

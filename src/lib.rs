@@ -186,7 +186,7 @@ impl AltctrlInterface for Garfanzo {
                                                             .to_string(),
                                                     )))
                                                     .unwrap();
-                                                let window = protocol::NewWindow {
+                                                let window = protocol::WindowData {
                                                     id:      command[2].to_string(),
                                                     content: command[3].to_string(),
                                                     message: command[4].to_string(),

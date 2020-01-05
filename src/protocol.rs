@@ -6,7 +6,7 @@ use crate::SerialEvent;
 
 // New window struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct NewWindow {
+pub struct WindowData {
     pub id: String,
     pub content: String,
     pub message: String,
@@ -16,14 +16,14 @@ pub struct NewWindow {
     pub height: i32,
 }
 
-//Contents of window.
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum WindowContent {
-    Text,
-    List,
-    Scoreboard,
-    ProgressBar,
-}
+//Contents of window. (UNUSED)
+// #[derive(Clone, Debug, Serialize, Deserialize)]
+// pub enum WindowContent {
+//     Text,
+//     List,
+//     Scoreboard,
+//     ProgressBar,
+// }
 
 // Represents a device in the system
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
@@ -48,7 +48,7 @@ pub enum Port {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum IncomingMsg {
-    CreateWindow { window: NewWindow },
+    CreateWindow { window: WindowData },
     DestroyWindow { id: String },
     On { device: Device, port: Port },
     Off { device: Device, port: Port },

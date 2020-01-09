@@ -13,6 +13,7 @@ pub enum GuiEvent {
     CreateWindow(WindowData),
     DestroyWindow(String),
     MoveWindow(String, i32, i32),
+    ResizeWindow(String, i32, i32),
     Log(String),
     List(),
     Clear(),
@@ -59,6 +60,9 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
             }
             GuiEvent::MoveWindow(window, x, y) => {
                 move_window(window, x, y, &mut windows);
+            }
+            GuiEvent::ResizeWindow(window, x, y) => {
+                resize_window(window, x, y, &mut windows);
             }
             GuiEvent::Log(log_event) => {
                 logbuffer.insert(0, log_event.to_string());

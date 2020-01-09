@@ -2,6 +2,8 @@ use ncurses::*;
 use std::collections::HashMap;
 use crate::protocol::WindowData;
 
+// pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
 pub fn close_win(window: String, windows: &mut HashMap<String,(WINDOW, WindowData)>) {
     match window.as_ref() {
         "mainwindow" => {
@@ -15,9 +17,7 @@ pub fn close_win(window: String, windows: &mut HashMap<String,(WINDOW, WindowDat
                     delwin(win.0);
                     windows.remove(&window);
                 },
-                _ => {
-                    mvprintw(2, 0, "Invalid window name!");
-                },
+                _ => {},
             }
         }
     }
@@ -207,7 +207,34 @@ pub fn move_window(window: String, new_x_pos: i32, new_y_pos: i32, windows: &mut
                 height:  win.1.height,
             };
             windows.remove(&window);
-            open_win(new_win_data, windows);  
+            open_win(new_win_data, windows);
+        },
+        _ => {
+            mvprintw(2, 0, "Invalid window name!");
+        },
+    }
+    redraw(windows);
+}
+
+
+pub fn resize_window(window: String, new_x_pos: i32, new_y_pos: i32, windows: &mut HashMap<String, (WINDOW, WindowData)>) {
+    match windows.get(&window) {
+        Some(win) => {
+            let ch = ' ' as chtype;
+            wborder(win.0, ch, ch, ch, ch, ch, ch, ch, ch);
+            wrefresh(win.0);
+            delwin(win.0);
+            let new_win_data = crate::protocol::WindowData {
+                id:      win.1.id.clone(),
+                content: win.1.content.clone(),
+                message: win.1.message.clone(),
+                x_pos:   win.1.x_pos,
+                y_pos:   win.1.y_pos,
+                width:   new_x_pos,
+                height:  new_y_pos,
+            };
+            windows.remove(&window);
+            open_win(new_win_data, windows);
         },
         _ => {
             mvprintw(2, 0, "Invalid window name!");

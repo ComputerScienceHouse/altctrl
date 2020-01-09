@@ -196,15 +196,23 @@ impl AltctrlInterface for Garfanzo {
                                         }
                                         "close" => {
                                             let window = command[2].to_string();
-                                            sender
-                                                .send(Event::Gui(gui::GuiEvent::DestroyWindow(window)))
-                                                .unwrap();
+                                            notify(format!("Closing window \"{}\"", &window).as_str(), &sender);
+                                            sender.send(Event::Gui(gui::GuiEvent::DestroyWindow(window))).unwrap();
                                         }
                                         "list" => {
                                             sender.send(Event::Gui(gui::GuiEvent::List())).unwrap();
                                         }
                                         "move" => {
+                                            notify(format!("Moving window \"{}\"", command[2]).as_str(), &sender);
                                             sender.send(Event::Gui(gui::GuiEvent::MoveWindow(
+                                                command[2].to_string(), 
+                                                command[3].parse::<i32>().unwrap(),
+                                                command[4].parse::<i32>().unwrap(),
+                                            ))).unwrap();
+                                        }
+                                        "resize" => {
+                                            notify(format!("Resizing window \"{}\"", command[2]).as_str(), &sender);
+                                            sender.send(Event::Gui(gui::GuiEvent::ResizeWindow(
                                                 command[2].to_string(), 
                                                 command[3].parse::<i32>().unwrap(),
                                                 command[4].parse::<i32>().unwrap(),
@@ -220,9 +228,10 @@ impl AltctrlInterface for Garfanzo {
                             },
                             "clear" => {
                                 sender.send(Event::Gui(gui::GuiEvent::Clear())).unwrap();
+                                notify("Screen cleared.", &sender);
                             }
                             "help" => {
-                                notify("(log, window(id, content (Text, List, Scoreboard, ProgressBar), message (separate with | and then with +), x_pos, y_pos, width, height), clear, help) Separate arguments with \',\'", &sender);
+                                notify("(log, window(command (new, (id, content (Text, List, Scoreboard, ProgressBar), message (separate with | and then with +), x_pos, y_pos, width, height), move (id, x, y), resize (id, x, y), close)), clear, help) Separate arguments with \',\'", &sender);
                             }
                             _ => {
                                 invalid_command(&sender);

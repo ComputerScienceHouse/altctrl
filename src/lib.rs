@@ -178,9 +178,8 @@ impl AltctrlInterface for Garfanzo {
                                     match command[1] {
                                         "new" => {
                                             if command.len() == 9 { // Remember to update this number when you add new shit to the window protocol
-                                                sender.send(Event::Gui(gui::GuiEvent::Log(
-                                                        format!("Creating window, \"{}\"", command[2]).to_string(),
-                                                    ))).unwrap();
+                                                sender.send(Event::Gui(gui::GuiEvent::Log(format!("Creating window, \"{}\"", command[2]).to_string(),))).unwrap();
+                                                //TODO: Why can't I figure out this unwrap?
                                                 let window = protocol::WindowData {
                                                     id:      command[2].to_string(),
                                                     content: command[3].to_string(),
@@ -203,6 +202,13 @@ impl AltctrlInterface for Garfanzo {
                                         }
                                         "list" => {
                                             sender.send(Event::Gui(gui::GuiEvent::List())).unwrap();
+                                        }
+                                        "move" => {
+                                            sender.send(Event::Gui(gui::GuiEvent::MoveWindow(
+                                                command[2].to_string(), 
+                                                command[3].parse::<i32>().unwrap(),
+                                                command[4].parse::<i32>().unwrap(),
+                                            ))).unwrap();
                                         }
                                         _ => {
                                             invalid_command(&sender);

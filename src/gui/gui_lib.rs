@@ -2,11 +2,11 @@ use ncurses::*;
 use std::collections::HashMap;
 use crate::protocol::WindowData;
 
-pub fn close_win(window: String, windows: &mut HashMap<String,(WINDOW, WindowData)>, logbuffer: &mut Vec<String>) {
+// pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+pub fn close_win(window: String, windows: &mut HashMap<String,(WINDOW, WindowData)>) {
     match window.as_ref() {
         "mainwindow" => {
-            logbuffer.insert(0, "You idiot! Don't delete the main window!".to_string());
-            showlog(&logbuffer);
         },
         _ => {
             match windows.get(&window) {
@@ -16,19 +16,15 @@ pub fn close_win(window: String, windows: &mut HashMap<String,(WINDOW, WindowDat
                     wrefresh(win.0);
                     delwin(win.0);
                     windows.remove(&window);
-                    logbuffer.insert(0, format!("Window \"{}\" destroyed.", window).to_string());
-                    showlog(&logbuffer);
                 },
-                _ => {
-                    mvprintw(2, 0, "Invalid window name!");
-                },
+                _ => {},
             }
         }
     }
     redraw(windows);
 }
 
-pub fn clear_windows(windows: &mut HashMap<String, (WINDOW, WindowData)>, logbuffer: &mut Vec<String>) {
+pub fn clear_windows(windows: &mut HashMap<String, (WINDOW, WindowData)>) {
     // let mut WINDOW;
     for (title, win) in &*windows {
         match title.as_ref() {
@@ -38,14 +34,10 @@ pub fn clear_windows(windows: &mut HashMap<String, (WINDOW, WindowData)>, logbuf
                 wborder(win.0, ch, ch, ch, ch, ch, ch, ch, ch);
                 wrefresh(win.0);
                 delwin(win.0);
-                logbuffer.insert(0, format!("Window \"{}\" destroyed.", title).to_string());
-                showlog(&logbuffer);
             }
         }
     }
     windows.clear();
-    logbuffer.insert(0, "Cleared all windows.".to_string());
-    showlog(&logbuffer);
 }
 
 pub fn draw_win(new_window: &WindowData, win: WINDOW) {
@@ -126,11 +118,12 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
         },
         "ProgressBar" | "PB" | "ProgBar" | "Bar" | "B" => { // Display a bar of some sort in a window.
                                               // (Window heights of 1 work best).
+            //Collect the fraction into individual variables.
             let metrics = message.split('|').collect::<Vec<&str>>();
             let lower = metrics[0].parse::<f32>().unwrap();
             let upper = metrics[1].parse::<f32>().unwrap();
             let absolute_progress = ((lower/upper)*(x_dim as f32)) as i32; // How far across the window the bar is
-            attron(A_STANDOUT()); // Solid bar style. I guess TODO: Make more styles?
+            attron(A_STANDOUT()); // Solid bar style. TODO: Make more styles?
             for i in 0..absolute_progress {
                 mvprintw(start_y+1, start_x+1+(i as i32), " ");
             }
@@ -153,14 +146,18 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
 
 // Opens a new window and keeps track of it in the window HashMap.
 pub fn open_win(new_window: WindowData,
-                windows: &mut HashMap<String, (WINDOW, WindowData)>,
-                logbuffer: &mut Vec<String>) {
+                windows: &mut HashMap<String, (WINDOW, WindowData)>) {
+    // Grab all the data out of the WindowData struct for later use. Cuts down on verbosity.
+    // Top left corner of window's (x,y) location. 0,0 is top left of screen.
     let x_loc = new_window.x_pos;
     let y_loc = new_window.y_pos;
+    // (x,y) size of window
     let x_dim = new_window.width;
     let y_dim = new_window.height;
+    // Window ID. What you type to do things to it. Also displayed at the top of the window.
     let name = &new_window.id;
     if !windows.contains_key(name){
+        // Track the existence of the window.
         let mut max_x = 0;
         let mut max_y = 0;
         let start_x;
@@ -182,17 +179,68 @@ pub fn open_win(new_window: WindowData,
         let win = newwin((y_dim)+2, (x_dim)+2, start_y, start_x);
         draw_win(&new_window, win);
         windows.insert(name.to_string(), (win, new_window));
-    } else {
-        logbuffer.insert(0, "This window name is already taken!".to_string());
-        showlog(&logbuffer);
     }
 }
 
-// Redraws the windows open on screen when anything changes that could expose hidden content such as a window closing. Shouldn't be used by the user.
+// Redraws the windows open on screen when anything changes that could expose
+// hidden content such as a window closing. Shouldn't be used by the user.
 pub fn redraw(windows: &mut HashMap<String, (WINDOW, WindowData)>) {
     for (_window,data) in windows {
         draw_win(&data.1, data.0);
     }
+}
+
+pub fn move_window(window: String, new_x_pos: i32, new_y_pos: i32, windows: &mut HashMap<String, (WINDOW, WindowData)>) {
+    match windows.get(&window) {
+        Some(win) => {
+            let ch = ' ' as chtype;
+            wborder(win.0, ch, ch, ch, ch, ch, ch, ch, ch);
+            wrefresh(win.0);
+            delwin(win.0);
+            let new_win_data = crate::protocol::WindowData {
+                id:      win.1.id.clone(),
+                content: win.1.content.clone(),
+                message: win.1.message.clone(),
+                x_pos:   new_x_pos,
+                y_pos:   new_y_pos,
+                width:   win.1.width,
+                height:  win.1.height,
+            };
+            windows.remove(&window);
+            open_win(new_win_data, windows);
+        },
+        _ => {
+            mvprintw(2, 0, "Invalid window name!");
+        },
+    }
+    redraw(windows);
+}
+
+
+pub fn resize_window(window: String, new_x_pos: i32, new_y_pos: i32, windows: &mut HashMap<String, (WINDOW, WindowData)>) {
+    match windows.get(&window) {
+        Some(win) => {
+            let ch = ' ' as chtype;
+            wborder(win.0, ch, ch, ch, ch, ch, ch, ch, ch);
+            wrefresh(win.0);
+            delwin(win.0);
+            let new_win_data = crate::protocol::WindowData {
+                id:      win.1.id.clone(),
+                content: win.1.content.clone(),
+                message: win.1.message.clone(),
+                x_pos:   win.1.x_pos,
+                y_pos:   win.1.y_pos,
+                width:   new_x_pos,
+                height:  new_y_pos,
+            };
+            windows.remove(&window);
+            open_win(new_win_data, windows);
+        },
+        _ => {
+            mvprintw(2, 0, "Invalid window name!");
+        },
+    }
+    redraw(windows);
 }
 
 // Redraws the log.

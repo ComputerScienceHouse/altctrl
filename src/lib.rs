@@ -171,21 +171,15 @@ impl AltctrlInterface for Garfanzo {
                     if !command.is_empty() {
                         match command[0] {
                             "log" => {
-                                sender
-                                    .send(Event::Gui(gui::GuiEvent::Log(command[1].to_string())))
-                                    .unwrap();
+                                notify(command[1], &sender);
                             }
                             "window" => {
                                 if command.len() > 1 {
                                     match command[1] {
                                         "new" => {
                                             if command.len() == 9 { // Remember to update this number when you add new shit to the window protocol
-                                                sender
-                                                    .send(Event::Gui(gui::GuiEvent::Log(
-                                                        format!("Creating window, \"{}\"", command[2])
-                                                            .to_string(),
-                                                    )))
-                                                    .unwrap();
+                                                sender.send(Event::Gui(gui::GuiEvent::Log(format!("Creating window, \"{}\"", command[2]).to_string(),))).unwrap();
+                                                //TODO: Why can't I figure out this unwrap?
                                                 let window = protocol::WindowData {
                                                     id:      command[2].to_string(),
                                                     content: command[3].to_string(),
@@ -196,49 +190,67 @@ impl AltctrlInterface for Garfanzo {
                                                     height:  command[8].parse::<i32>().unwrap(),
                                                 };
                                                 sender.send(Event::Gui(gui::GuiEvent::CreateWindow(window))).unwrap();
+                                            } else {
+                                                invalid_command(&sender);
                                             }
                                         }
                                         "close" => {
                                             let window = command[2].to_string();
-                                            sender
-                                                .send(Event::Gui(gui::GuiEvent::DestroyWindow(window)))
-                                                .unwrap();
+                                            notify(format!("Closing window \"{}\"", &window).as_str(), &sender);
+                                            sender.send(Event::Gui(gui::GuiEvent::DestroyWindow(window))).unwrap();
                                         }
                                         "list" => {
                                             sender.send(Event::Gui(gui::GuiEvent::List())).unwrap();
                                         }
+                                        "move" => {
+                                            notify(format!("Moving window \"{}\"", command[2]).as_str(), &sender);
+                                            sender.send(Event::Gui(gui::GuiEvent::MoveWindow(
+                                                command[2].to_string(), 
+                                                command[3].parse::<i32>().unwrap(),
+                                                command[4].parse::<i32>().unwrap(),
+                                            ))).unwrap();
+                                        }
+                                        "resize" => {
+                                            notify(format!("Resizing window \"{}\"", command[2]).as_str(), &sender);
+                                            sender.send(Event::Gui(gui::GuiEvent::ResizeWindow(
+                                                command[2].to_string(), 
+                                                command[3].parse::<i32>().unwrap(),
+                                                command[4].parse::<i32>().unwrap(),
+                                            ))).unwrap();
+                                        }
                                         _ => {
-                                            sender.send(Event::Gui(gui::GuiEvent::Log(format!("Invalid command received. ({}) Please enter a window subcommand. (new, close, list)", command[1]).to_string()))).unwrap();
+                                            invalid_command(&sender);
                                         }
                                     }
                                 } else {
-                                    sender.send(Event::Gui(gui::GuiEvent::Log(
-                                        "Invalid window command received. Too few arguments.".to_string(),
-                                    ))).unwrap();
+                                    invalid_command(&sender);
                                 }
                             },
                             "clear" => {
                                 sender.send(Event::Gui(gui::GuiEvent::Clear())).unwrap();
+                                notify("Screen cleared.", &sender);
                             }
                             "help" => {
-                                sender.send(Event::Gui(gui::GuiEvent::Log("(log, window(id, content (Text, List, Scoreboard, ProgressBar), message (separate with | and then with +), x_pos, y_pos, width, height), clear, help) Separate arguments with \',\'".to_string()))).unwrap();
+                                notify("(log, window(command (new, (id, content (Text, List, Scoreboard, ProgressBar), message (separate with | and then with +), x_pos, y_pos, width, height), move (id, x, y), resize (id, x, y), close)), clear, help) Separate arguments with \',\'", &sender);
                             }
                             _ => {
-                                sender.send(Event::Gui(gui::GuiEvent::Log(
-                                        "Invalid command received.".to_string(),
-                                ))).unwrap();
+                                invalid_command(&sender);
                             }
                         }
                     } else {
-                        sender.send(Event::Gui(gui::GuiEvent::Log(
-                            "Invalid command received.".to_string(),
-                        ))).unwrap();
+                        invalid_command(&sender);
                     }
                 }
                 Err(e) => {
                     eprintln!("{}", e);
                 }
             }
+        }
+        fn notify(info: &str, sender: &Sender<Event>) {
+            sender.send(Event::Gui(gui::GuiEvent::Log(info.to_string()))).unwrap();
+        }
+        fn invalid_command(sender: &Sender<Event>) {
+            sender.send(Event::Gui(gui::GuiEvent::Log("Invalid command received.".to_string(),))).unwrap();
         }
     }
 }

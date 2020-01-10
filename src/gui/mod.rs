@@ -12,6 +12,8 @@ use gui_lib::*;
 pub enum GuiEvent {
     CreateWindow(WindowData),
     DestroyWindow(String),
+    MoveWindow(String, i32, i32),
+    ResizeWindow(String, i32, i32),
     Log(String),
     List(),
     Clear(),
@@ -51,10 +53,16 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
         refresh();
         match message {
             GuiEvent::CreateWindow(new_window) => {
-                open_win(new_window, &mut windows, &mut logbuffer);
+                open_win(new_window, &mut windows);
             }
             GuiEvent::DestroyWindow(id) => {
-                close_win(id, &mut windows, &mut logbuffer);
+                close_win(id, &mut windows);
+            }
+            GuiEvent::MoveWindow(window, x, y) => {
+                move_window(window, x, y, &mut windows);
+            }
+            GuiEvent::ResizeWindow(window, x, y) => {
+                resize_window(window, x, y, &mut windows);
             }
             GuiEvent::Log(log_event) => {
                 logbuffer.insert(0, log_event.to_string());
@@ -70,11 +78,7 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
             }
             GuiEvent::Clear() => {
                 clear();
-                clear_windows(&mut windows, &mut logbuffer);
-                // let wumbows = &windows;
-                // for (key, _value) in wumbows {
-                //     close_win(key.to_string(), &mut windows, &mut logbuffer);
-                // }
+                clear_windows(&mut windows);
                 showlog(&logbuffer);
             }
         }

@@ -2,8 +2,6 @@ use ncurses::*;
 use std::collections::HashMap;
 use crate::protocol::WindowData;
 
-// pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
 pub fn close_win(window: String, windows: &mut HashMap<String,(WINDOW, WindowData)>) {
     match window.as_ref() {
         "mainwindow" => {
@@ -134,7 +132,7 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
             mvprintw(start_y+y_dim+1, start_x+1, &progress_string);
             attroff(A_BOLD());
         },
-        _ => { dbg!("Dawg something totally whack happened I guess. o7 to your debugging.");},
+        _ => { dbg!("Dawg something totally whack happened I guess. o7 to your debugging."); },
     }
     box_(win, 0, 0);
     wrefresh(win);
@@ -145,8 +143,7 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
 }
 
 // Opens a new window and keeps track of it in the window HashMap.
-pub fn open_win(new_window: WindowData,
-                windows: &mut HashMap<String, (WINDOW, WindowData)>) {
+pub fn open_win(new_window: WindowData, windows: &mut HashMap<String, (WINDOW, WindowData)>) {
     // Grab all the data out of the WindowData struct for later use. Cuts down on verbosity.
     // Top left corner of window's (x,y) location. 0,0 is top left of screen.
     let x_loc = new_window.x_pos;
@@ -156,7 +153,10 @@ pub fn open_win(new_window: WindowData,
     let y_dim = new_window.height;
     // Window ID. What you type to do things to it. Also displayed at the top of the window.
     let name = &new_window.id;
-    if !windows.contains_key(name){
+    if !windows.contains_key(&name.to_string()) || new_window.priority { // TODO: Err when contains key.
+        // if windows.contains_key(&name.to_string()) && new_window.priority {
+        //     close_win(name.to_string(), windows);
+        // }
         // Track the existence of the window.
         let mut max_x = 0;
         let mut max_y = 0;
@@ -187,6 +187,7 @@ pub fn open_win(new_window: WindowData,
 pub fn redraw(windows: &mut HashMap<String, (WINDOW, WindowData)>) {
     for (_window,data) in windows {
         draw_win(&data.1, data.0);
+        newwin((data.1.height)+2, (data.1.width)+2, data.1.y_pos, data.1.x_pos);
     }
 }
 
@@ -205,6 +206,7 @@ pub fn move_window(window: String, new_x_pos: i32, new_y_pos: i32, windows: &mut
                 y_pos:   new_y_pos,
                 width:   win.1.width,
                 height:  win.1.height,
+                priority: win.1.priority,
             };
             windows.remove(&window);
             open_win(new_win_data, windows);
@@ -232,6 +234,7 @@ pub fn resize_window(window: String, new_x_pos: i32, new_y_pos: i32, windows: &m
                 y_pos:   win.1.y_pos,
                 width:   new_x_pos,
                 height:  new_y_pos,
+                priority: win.1.priority,
             };
             windows.remove(&window);
             open_win(new_win_data, windows);
@@ -244,28 +247,30 @@ pub fn resize_window(window: String, new_x_pos: i32, new_y_pos: i32, windows: &m
 }
 
 // Redraws the log.
-pub fn showlog(logbuffer: &Vec<String>) {
-    let mut max_x = 0;
-    let mut max_y = 0;
-    /* Get the screen bounds. */
-    getmaxyx(stdscr(), &mut max_y, &mut max_x);
-    mv(5, 0);
-    for _i in 0..max_x {
-        addstr("-");
-    }
-    attron(A_BOLD());
-    mvprintw(5, COLS() - 8, &"Console");
-    attroff(A_BOLD());
-    mv(0,0);
-
-    //Update log window...
-    for i in 0..5 {
-        mv(i,0);
-        clrtoeol();
-    }
-    mv(0,0);
-    for i in (0..5).rev() {
-        mv(4-(i as i32), 0);
-        addstr(logbuffer.get(i).unwrap());
+pub fn get_log(logbuffer: &Vec<String>, show_console: bool) {
+    if show_console {
+        let mut max_x = 0;
+        let mut max_y = 0;
+        /* Get the screen bounds. */
+        getmaxyx(stdscr(), &mut max_y, &mut max_x);
+        mv(5, 0);
+        for _i in 0..max_x {
+            addstr("-");
+        }
+        attron(A_BOLD());
+        mvprintw(5, COLS() - 8, &"Console");
+        attroff(A_BOLD());
+        mv(0,0);
+    
+        //Update log window...
+        for i in 0..5 {
+            mv(i,0);
+            clrtoeol();
+        }
+        mv(0,0);
+        for i in (0..5).rev() {
+            mv(4-(i as i32), 0);
+            addstr(logbuffer.get(i).unwrap());
+        }
     }
 }

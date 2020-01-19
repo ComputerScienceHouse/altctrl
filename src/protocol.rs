@@ -14,6 +14,7 @@ pub struct WindowData {
     pub y_pos: i32,
     pub width: i32,
     pub height: i32,
+    pub priority: bool,
 }
 
 //Contents of window. (UNUSED)

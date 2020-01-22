@@ -44,8 +44,8 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
     let x_dim = new_window.width;
     let y_dim = new_window.height;
     let name = &new_window.id;
-    let content = &new_window.content;
     let message = &new_window.message;
+    let style = &new_window.style;
     let mut max_x = 0;
     let mut max_y = 0;
     let start_x;
@@ -64,11 +64,29 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
             start_x = max_x;
         },
     }
+
+    let mut attribute = A_NORMAL();
+    match style.as_str() {
+        "Bold" => {
+            attribute = A_BOLD();
+        },
+        "Highlight" => {
+            attribute = A_STANDOUT();
+        },
+        "Flash" => {
+            attribute = A_BLINK();
+        },
+        "Underline" => {
+            attribute = A_UNDERLINE();
+        },
+        _ => {},
+    }
     
     // Match content, then use that to figure out the data.
-    match content.as_str() {
+    match new_window.content.as_str() {
         "Text" | "T" => { // Display whatever text you need in a normal, window wrapping fashion.
             if message.len() > (x_dim as usize) {
+                attron(attribute);
                 let real_x_dim = x_dim as usize;
                 for i in 0..message.len(){
                     if i == 0 {
@@ -80,6 +98,7 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
                         mvprintw(start_y+1+(i as i32), start_x+1, &message[real_x_dim*(i)..real_x_dim*(i+1)]);
                     }
                 }
+                attroff(attribute);
             } else {
                 mvprintw(start_y+1, start_x+1, &message);
             }
@@ -89,9 +108,11 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
             attron(A_UNDERLINE());
             for i in 0..list_data.len() {
                 for j in 0..x_dim {
-                    mvprintw(start_y+1+(i as i32), start_x+1+(j as i32), " ");
+                    mvprintw(start_y+1+(i as i32), start_x+1+(j as i32), " "); // Print the underline to separate list items.
                 }
+                attron(attribute);
                 mvprintw(start_y+1+(i as i32), start_x+1, &list_data[i]);
+                attroff(attribute);
             }
             attroff(A_UNDERLINE());
         },
@@ -104,28 +125,50 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
                 }
                 let item_metric = &list_data[i].split('+').collect::<Vec<&str>>();
                 if item_metric.len() >= 1 { // I guess I can display a name with no score on the scoreboard.
+                    attron(attribute);
                     mvprintw(start_y+1+(i as i32), start_x+1, item_metric[0]);
+                    attroff(attribute);
                 }
                 attron(A_BOLD());
                 if item_metric.len() == 2 { // The damn thing should be at most two values
+                    attron(attribute);
                     mvprintw(start_y+1+(i as i32), start_x+x_dim-3, item_metric[1]);
+                    attroff(attribute);
                 }
                 attroff(A_BOLD());
             }
             attroff(A_UNDERLINE());
         },
         "ProgressBar" | "PB" | "ProgBar" | "Bar" | "B" => { // Display a bar of some sort in a window.
-                                              // (Window heights of 1 work best).
+                                                            // (Window heights of 1 work best).
             //Collect the fraction into individual variables.
+            let pb_style = style.split('|').collect::<Vec<&str>>();
+            let mut pb_bg = A_STANDOUT();
+            let mut pb_ch = " ";
+            match pb_style[0] {
+                "low" => {
+                    pb_bg = A_NORMAL();
+                },
+                "flash" => {
+                    pb_bg = A_BLINK();
+                },
+                _ => {},
+            }
+            if pb_style.len() > 1 && pb_style[1].len() > 0 {
+                pb_ch = pb_style[1];
+            }
+            
             let metrics = message.split('|').collect::<Vec<&str>>();
             let lower = metrics[0].parse::<f32>().unwrap();
             let upper = metrics[1].parse::<f32>().unwrap();
             let absolute_progress = ((lower/upper)*(x_dim as f32)) as i32; // How far across the window the bar is
-            attron(A_STANDOUT()); // Solid bar style. TODO: Make more styles?
+            // if pb_style[0] == "flash" { attron(A_STANDOUT()); }
+            attron(pb_bg); // Solid bar style. TODO: Make more styles?
             for i in 0..absolute_progress {
-                mvprintw(start_y+1, start_x+1+(i as i32), " ");
+                mvprintw(start_y+1, start_x+1+(i as i32), pb_ch);
             }
-            attroff(A_STANDOUT());
+            attroff(pb_bg);
+            // if pb_style[0] == "flash" { attroff(A_STANDOUT()); }
             // Print the value
             attron(A_BOLD());
             let progress_string = format!("|{}/{}|", lower, upper);
@@ -202,6 +245,7 @@ pub fn move_window(window: String, new_x_pos: i32, new_y_pos: i32, windows: &mut
                 id:      win.1.id.clone(),
                 content: win.1.content.clone(),
                 message: win.1.message.clone(),
+                style:   win.1.style.clone(),
                 x_pos:   new_x_pos,
                 y_pos:   new_y_pos,
                 width:   win.1.width,
@@ -230,6 +274,7 @@ pub fn resize_window(window: String, new_x_pos: i32, new_y_pos: i32, windows: &m
                 id:      win.1.id.clone(),
                 content: win.1.content.clone(),
                 message: win.1.message.clone(),
+                style:   win.1.style.clone(),
                 x_pos:   win.1.x_pos,
                 y_pos:   win.1.y_pos,
                 width:   new_x_pos,

@@ -191,21 +191,22 @@ impl AltctrlInterface for Garfanzo {
                                 if command.len() > 1 {
                                     match command[1] {
                                         "new" => {
-                                            if command.len() >= 9 && command.len() <= 10 { // Remember to update this number when you add new shit to the window protocol
+                                            if command.len() >= 10 && command.len() <= 11 { // Remember to update this number when you add new shit to the window protocol
                                                 sender.send(Event::Gui(gui::GuiEvent::Log(format!("Creating window, \"{}\"", command[2]).to_string(),))).unwrap();
                                                 //TODO: Why can't I figure out this unwrap?
                                                 let mut priority = false;
-                                                if command.len() == 10 && command[9] == "!" {
+                                                if command.len() == 11 && command[10] == "!" {
                                                     priority = true;
                                                 }
                                                 let window = protocol::WindowData {
                                                     id:      command[2].to_string(),
                                                     content: command[3].to_string(),
                                                     message: command[4].to_string(),
-                                                    x_pos:   command[5].parse::<i32>().unwrap(),
-                                                    y_pos:   command[6].parse::<i32>().unwrap(),
-                                                    width:   command[7].parse::<i32>().unwrap(),
-                                                    height:  command[8].parse::<i32>().unwrap(),
+                                                    style:   command[5].to_string(),
+                                                    x_pos:   command[6].parse::<i32>().unwrap(),
+                                                    y_pos:   command[7].parse::<i32>().unwrap(),
+                                                    width:   command[8].parse::<i32>().unwrap(),
+                                                    height:  command[9].parse::<i32>().unwrap(),
                                                     priority: priority,
                                                 };
                                                 sender.send(Event::Gui(gui::GuiEvent::CreateWindow(window))).unwrap();

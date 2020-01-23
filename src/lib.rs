@@ -223,12 +223,14 @@ impl AltctrlInterface for Garfanzo {
                                             sender.send(Event::Gui(gui::GuiEvent::List())).unwrap();
                                         }
                                         "move" => {
-                                            notify(format!("Moving window \"{}\"", command[2]).as_str(), &sender);
-                                            sender.send(Event::Gui(gui::GuiEvent::MoveWindow(
+                                            if command.len() == 5 {
+                                                notify(format!("Moving window \"{}\"", command[2]).as_str(), &sender);
+                                                sender.send(Event::Gui(gui::GuiEvent::MoveWindow(
                                                 command[2].to_string(), 
                                                 command[3].parse::<i32>().unwrap(),
                                                 command[4].parse::<i32>().unwrap(),
                                             ))).unwrap();
+                                        }
                                         }
                                         "resize" => {
                                             notify(format!("Resizing window \"{}\"", command[2]).as_str(), &sender);

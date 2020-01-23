@@ -18,9 +18,9 @@ Garfanzo™ is our debug program.
 To properly run Garfanzo, you need to pipe the output to another tty. You can do this from a desktop session like so:
 
 Open two terminal emulators.
-In the first terminal run the tty command. This command will return the tty device of the terminal emulator.
+In the first terminal run the tty command. This command will return the tty device of the terminal emulator (eg. `/dev/pts/1`).
 In the second terminal navigate to this repo and run,
-`cargo run --bin garfanzo > {result of tty}`
+ `cargo run -- -d -i garfanzo > /dev/pts/1`
 
 ### Setting up usb gadget
 Altctrl communicates with the client over the rpi zero's data usb port.

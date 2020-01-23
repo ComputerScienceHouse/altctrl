@@ -67,16 +67,16 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
 
     let mut attribute = A_NORMAL();
     match style.as_str() {
-        "Bold" => {
+        "bold" => {
             attribute = A_BOLD();
         },
-        "Highlight" => {
+        "highlight" => {
             attribute = A_STANDOUT();
         },
-        "Flash" => {
+        "blink" => {
             attribute = A_BLINK();
         },
-        "Underline" => {
+        "underline" => {
             attribute = A_UNDERLINE();
         },
         _ => {},
@@ -85,8 +85,8 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
     // Match content, then use that to figure out the data.
     match new_window.content.as_str() {
         "Text" | "T" => { // Display whatever text you need in a normal, window wrapping fashion.
+            attron(attribute);
             if message.len() > (x_dim as usize) {
-                attron(attribute);
                 let real_x_dim = x_dim as usize;
                 for i in 0..message.len(){
                     if i == 0 {
@@ -98,10 +98,10 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
                         mvprintw(start_y+1+(i as i32), start_x+1, &message[real_x_dim*(i)..real_x_dim*(i+1)]);
                     }
                 }
-                attroff(attribute);
             } else {
                 mvprintw(start_y+1, start_x+1, &message);
             }
+            attroff(attribute);
         },
         "List" | "L" => { // Display a list of items or options
             let list_data = message.split('|').collect::<Vec<&str>>();
@@ -149,7 +149,7 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
                 "low" => {
                     pb_bg = A_NORMAL();
                 },
-                "flash" => {
+                "blink" => {
                     pb_bg = A_BLINK();
                 },
                 _ => {},
@@ -172,7 +172,7 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
             // Print the value
             attron(A_BOLD());
             let progress_string = format!("|{}/{}|", lower, upper);
-            mvprintw(start_y+y_dim+1, start_x+1, &progress_string);
+            mvprintw(start_y+y_dim+1, start_x+x_dim-1-message.len() as i32, &progress_string);
             attroff(A_BOLD());
         },
         _ => { dbg!("Dawg something totally whack happened I guess. o7 to your debugging."); },

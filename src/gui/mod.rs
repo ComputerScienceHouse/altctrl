@@ -14,9 +14,11 @@ pub enum GuiEvent {
     DestroyWindow(String),
     MoveWindow(String, i32, i32),
     ResizeWindow(String, i32, i32),
-    Log(String),
     List(),
+    Redraw(),
     Clear(),
+    Log(String),
+    ToggleConsole(),
 }
 
 pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
@@ -34,12 +36,16 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
     // Set up omniscient stuff
     // HashMap of active windows, so that we know what's bonkin'
     let mut windows: std::collections::HashMap<String, (WINDOW, WindowData)> = HashMap::new();
+
+    // Boolean to determine weather or not to show the console.
+    let mut show_console = true;
+
     // Log buffer to use for keeping track of command output.
     let mut logbuffer: Vec<String> = Vec::new();
     for _i in 0..5 {
         logbuffer.push(" ".to_string());
     }
-    showlog(&logbuffer);
+    get_log(&logbuffer, show_console);
 
     refresh();
 
@@ -49,7 +55,7 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
     getmaxyx(stdscr(), &mut max_y, &mut max_x);
 
     for message in rx.iter() {
-        showlog(&logbuffer);
+        get_log(&logbuffer, show_console);
         refresh();
         match message {
             GuiEvent::CreateWindow(new_window) => {
@@ -76,13 +82,24 @@ pub fn launch(_tx: Sender<Event>, rx: Receiver<GuiEvent>) {
                 }
                 logbuffer.insert(0, open_windows.to_string());
             }
+            GuiEvent::Redraw() => {
+                redraw(&mut windows);
+            }
             GuiEvent::Clear() => {
                 clear();
                 clear_windows(&mut windows);
-                showlog(&logbuffer);
+                get_log(&logbuffer, show_console);
             }
+            GuiEvent::ToggleConsole() => {
+                show_console = !show_console;
+                for i in 0..8 {
+                    mv(i,0);
+                    clrtoeol();
+                }
+                redraw(&mut windows);
+            },
         }
-        showlog(&logbuffer);
+        get_log(&logbuffer, show_console);
         refresh();
     }
     endwin();

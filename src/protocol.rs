@@ -7,13 +7,15 @@ use crate::SerialEvent;
 // New window struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WindowData {
-    pub id: String,
-    pub content: String,
-    pub message: String,
-    pub x_pos: i32,
-    pub y_pos: i32,
-    pub width: i32,
-    pub height: i32,
+    pub id       : String,
+    pub content  : String,
+    pub message  : String,
+    pub style    : String,
+    pub x_pos    : i32,
+    pub y_pos    : i32,
+    pub width    : i32,
+    pub height   : i32,
+    pub priority : bool,
 }
 
 //Contents of window. (UNUSED)

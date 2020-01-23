@@ -256,9 +256,40 @@ impl AltctrlInterface for Garfanzo {
                             "help" => {
                                 //(log, window(command (new, (id, content (Text, List, Scoreboard, ProgressBar), message (separate with | and then with +), x_pos, y_pos, width, height), move (id, x, y), resize (id, x, y), close)), clear, help) Separate arguments with \',\'";
                                 let help_message = 
-                                "[ log (put | toggle) ], [ window (new (id, content ( T <text> | L <list> | SB <scoreboard> | PB <progressbar> ) | message <separate with | and then with +> | x_pos | y_pos | width | height) | close (id) | list | move (x | y) | resize (x | y )) ], [ redraw ], [ clear ], [ help ], Optionally, add '!' at the end of your command to allow overriding. Separate arguments with '`'."
+"===HOW TO USE GARFANZO===
+—————————————————————————
+log [put | toggle],
+window [
+    new[
+        id, 
+        content[ T(ext) | L(ist) | SB (ScoreBoard) | PB (ProgressBar) ], 
+        message (Separate elements with '|' and sub elements with ':'),
+        style[ (If styling Text, List, or ScoreBoard [bold | highlight | blink | underline]) | (If styling a ProgressBar [[low | blink], <character>]) ],
+        x_pos, y_pos,
+        width, height,
+        (Optionally, add '!' at the end of your command to allow overriding.
+        Separate arguments with '`')
+    ],
+    close[id],
+    list,
+    move[id, x, y],
+    resize[id, x, y]
+]
+redraw,
+clear,
+help
+"
+
+                                // "[ log (put | toggle) ],
+                                // [ window(
+                                //     new(
+                                //         id, 
+                                //         content(
+                                //             T <text> | L <list> | SB <scoreboard> | PB <progressbar> )
+                                //         message <separate with | and then with +> 
+                                //         style <For text, lists, and scoreboards (bold | highlight | blink | underline)> <For progress bars ()  | x_pos | y_pos | width | height) | close (id) | list | move (x | y) | resize (x | y )) ], [ redraw ], [ clear ], [ help ], Optionally, add '!' at the end of your command to allow overriding. Separate arguments with '`'."
                                 .to_string();
-                                dbg!(&help_message);
+                                eprint!("{}", &help_message);
                                 // let window = protocol::WindowData {
                                 //     id:      "help".to_string(),
                                 //     content: "T".to_string(),

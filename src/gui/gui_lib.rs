@@ -123,7 +123,7 @@ pub fn draw_win(new_window: &WindowData, win: WINDOW) {
                 for j in 0..x_dim {
                     mvprintw(start_y+1+(i as i32), start_x+1+(j as i32), " ");
                 }
-                let item_metric = &list_data[i].split('+').collect::<Vec<&str>>();
+                let item_metric = &list_data[i].split(':').collect::<Vec<&str>>();
                 if item_metric.len() >= 1 { // I guess I can display a name with no score on the scoreboard.
                     attron(attribute);
                     mvprintw(start_y+1+(i as i32), start_x+1, item_metric[0]);

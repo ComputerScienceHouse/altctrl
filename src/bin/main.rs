@@ -25,9 +25,9 @@ fn main() {
         .get_matches();
 
     let interface: Box<dyn AltctrlInterface + Send> = match matches.value_of("interface") {
-        Some("chungo") => Box::new(altctrl::Chungo),
+        Some("chungo") => Box::new(altctrl::Chungo::new("/dev/ttyGS0")),
         Some("garfanzo") => Box::new(altctrl::Garfanzo),
-        Some("fatkhiyev") => Box::new(altctrl::Fatkhiyev),
+        Some("fatkhiyev") => Box::new(altctrl::Fatkhiyev::new("0.0.0.0:6969")),
         Some(_) | None => {
             println!("Invalid interface (or no interface provided)");
             return;

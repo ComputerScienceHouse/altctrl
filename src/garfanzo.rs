@@ -50,10 +50,11 @@ impl Garfanzo {
             .arg(Arg::with_name("toggle")
                 .help("Toggle the log window")
                 .long("--toggle").short("t")
-                .takes_value(false).required(false))
+                .takes_value(false))
             .arg(Arg::with_name("message")
                 .help("The message to print to the log window")
-                .index(1).takes_value(true).required(false))
+                .index(1)
+                .takes_value(true))
     }
 
     fn subcommand_window<'a, 'b>() -> App<'a, 'b> {
@@ -71,30 +72,30 @@ impl Garfanzo {
         SubCommand::with_name("new")
             .about("Creates a new window")
             .arg(Arg::with_name("id").help("The ID of the window to create")
-                .index(1).required(false).takes_value(true))
+                .index(1).takes_value(true))
             // TODO fill in content help
             .arg(Arg::with_name("content").help("TODO I don't know what this does")
-                .index(2).required(false).takes_value(true))
+                .index(2).takes_value(true))
             // TODO fill in message help
             .arg(Arg::with_name("message").help("TODO I don't know what this does")
-                .index(3).required(false).takes_value(true))
+                .index(3).takes_value(true))
             // TODO fill in style help
             .arg(Arg::with_name("style").help("TODO I don't know what this does")
-                .index(4).required(false).takes_value(true))
+                .index(4).takes_value(true))
             .arg(Arg::with_name("x_pos").help("The X coordinate of the window to create")
-                .index(5).required(false).takes_value(true)
+                .index(5).takes_value(true)
                 .validator(|x_pos| x_pos.parse::<i32>().map(|_| ()).map_err(|_| format!("x_pos must be an integer"))))
             .arg(Arg::with_name("y_pos").help("The Y coordinate of the window to create")
-                .index(6).required(false).takes_value(true)
+                .index(6).takes_value(true)
                 .validator(|y_pos| y_pos.parse::<i32>().map(|_| ()).map_err(|_| format!("y_pos must be an integer"))))
             .arg(Arg::with_name("width").help("The width of the window to create")
-                .index(7).required(false).takes_value(true)
+                .index(7).takes_value(true)
                 .validator(|w| w.parse::<i32>().map(|_| ()).map_err(|_| format!("width must be an integer"))))
             .arg(Arg::with_name("height").help("The height of the window to create")
-                .index(8).required(false).takes_value(true)
+                .index(8).takes_value(true)
                 .validator(|h| h.parse::<i32>().map(|_| ()).map_err(|_| format!("height must be an integer"))))
             .arg(Arg::with_name("priority").help("TODO I don't know what this does")
-                .index(9).required(false).takes_value(false).short("!"))
+                .index(9).takes_value(false).short("!"))
     }
 
     fn subcommand_window_close<'a, 'b>() -> App<'a, 'b> {
@@ -292,6 +293,7 @@ impl AltctrlInterface for Garfanzo {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use clap::ErrorKind;
 
     #[test]
     fn test_subcommand_window() {
@@ -312,6 +314,34 @@ mod tests {
                 assert_eq!(sub.value_of("y_pos"), Some("15"));
                 assert_eq!(sub.value_of("width"), Some("20"));
                 assert_eq!(sub.value_of("height"), Some("25"));
+            } else {
+                assert!(false);
+            }
+        } else {
+            assert!(false);
+        }
+    }
+
+    #[test]
+    fn test_int_validator() {
+        let mut app = Garfanzo::app();
+        let command = vec!["window", "new", "0", "Hello, world", "message", "bold", "ten", "15", "20", "25"];
+        let result = app.get_matches_from_safe_borrow(command);
+        assert!(result.is_err());
+        let error = result.unwrap_err();
+        assert_eq!(error.kind, ErrorKind::ValueValidation);
+    }
+
+    #[test]
+    fn test_priority() {
+        let mut app = Garfanzo::app();
+        let command = vec!["window", "new", "0", "Hello", "message", "bold", "10", "20", "30", "40", "!"];
+        let result = app.get_matches_from_safe_borrow(command);
+        assert!(result.is_ok());
+        let matches = result.unwrap();
+        if let ("window", Some(win_sub)) = matches.subcommand() {
+            if let ("new", Some(new_sub)) = win_sub.subcommand() {
+                assert!(new_sub.is_present("priority"));
             } else {
                 assert!(false);
             }

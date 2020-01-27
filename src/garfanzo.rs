@@ -106,7 +106,7 @@ impl Garfanzo {
     }
 
     fn subcommand_window_move<'a, 'b>() -> App<'a, 'b> {
-        SubCommand::with_name("move")
+        SubCommand::with_name("move").alias("mv")
             .about("Move an existing window to new coordinates")
             .arg(Arg::with_name("id").help("The ID of the window to move")
                 .index(1).takes_value(true))

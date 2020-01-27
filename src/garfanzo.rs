@@ -296,7 +296,7 @@ mod tests {
     #[test]
     fn test_subcommand_window() {
         let mut app = Garfanzo::app();
-        let command = vec!["garfanzo", "window", "new", "0", "Hello, world", "Message", "bold", "10", "15", "20", "25"];
+        let command = vec!["window", "new", "0", "Hello, world", "Message", "bold", "10", "15", "20", "25"];
         let result = app.get_matches_from_safe_borrow(command);
         assert!(result.is_ok());
 

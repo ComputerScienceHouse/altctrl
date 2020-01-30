@@ -1,8 +1,13 @@
 use crate::{AltctrlInterface, Event, SerialEvent, protocol};
+use crate::gui::GuiEvent;
 use std::sync::mpsc::{Sender, Receiver};
 use std::io::BufRead;
 use clap::{App, SubCommand, Arg, ArgMatches, AppSettings};
-use crate::gui::GuiEvent;
+use regex::Regex;
+
+lazy_static! {
+    static ref WORD: Regex = Regex::new(r#"(?m)(?:"([^"]*)")|([^\s]+)"#).unwrap();
+}
 
 pub struct Garfanzo {
     event_queue: Sender<Event>,
@@ -20,8 +25,10 @@ impl Garfanzo {
                 Err(_) => return,
                 Ok(line) => line,
             };
-            let command = line.split(" ");
-            let matches = app.get_matches_from_safe_borrow(command);
+            let args = WORD.captures_iter(&line)
+                .map(|cap| cap.get(1).or(cap.get(2)).unwrap().as_str())
+                .collect::<Vec<&str>>();
+            let matches = app.get_matches_from_safe_borrow(args);
             match matches {
                 Ok(matches) => self.execute(&matches),
                 _ => {

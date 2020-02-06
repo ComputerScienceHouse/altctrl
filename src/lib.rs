@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 use std::sync::mpsc::{Receiver, Sender};
 
 pub mod gui;

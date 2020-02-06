@@ -24,16 +24,6 @@ fn main() {
         )
         .get_matches();
 
-    let interface: Box<dyn AltctrlInterface + Send> = match matches.value_of("interface") {
-        Some("chungo") => Box::new(altctrl::Chungo::new("/dev/ttyGS0")),
-        Some("garfanzo") => Box::new(altctrl::Garfanzo),
-        Some("fatkhiyev") => Box::new(altctrl::Fatkhiyev::new("0.0.0.0:6969")),
-        Some(_) | None => {
-            println!("Invalid interface (or no interface provided)");
-            return;
-        }
-    };
-
     let disable_i2c = matches.is_present("disable-i2c");
 
     //Outcoming message channel for all modules
@@ -42,6 +32,18 @@ fn main() {
     //Incoming message channels for specific modules
     let (gui_tx, gui_rx) = mpsc::channel();
     let (serial_tx, serial_rx) = mpsc::channel();
+
+    let clone_tx = tx.clone();
+
+    let interface: Box<dyn AltctrlInterface + Send> = match matches.value_of("interface") {
+        Some("chungo") => Box::new(altctrl::Chungo::new("/dev/ttyGS0")),
+        Some("garfanzo") => Box::new(altctrl::Garfanzo::new(clone_tx)),
+        Some("fatkhiyev") => Box::new(altctrl::Fatkhiyev::new("0.0.0.0:6969")),
+        Some(_) | None => {
+            println!("Invalid interface (or no interface provided)");
+            return;
+        }
+    };
 
     let clone_tx = tx.clone();
 

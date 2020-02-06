@@ -80,14 +80,11 @@ impl Garfanzo {
             .about("Creates a new window")
             .arg(Arg::with_name("id").help("The ID of the window to create")
                 .index(1).takes_value(true))
-            // TODO fill in content help
-            .arg(Arg::with_name("content").help("TODO I don't know what this does")
+            .arg(Arg::with_name("content").help("What kind of content the window will contain (T(ext), L(ist), SB (ScoreBoard), PB (ProgressBar))")
                 .index(2).takes_value(true))
-            // TODO fill in message help
-            .arg(Arg::with_name("message").help("TODO I don't know what this does")
+            .arg(Arg::with_name("message").help("The message to be displayed inside the window.")
                 .index(3).takes_value(true))
-            // TODO fill in style help
-            .arg(Arg::with_name("style").help("TODO I don't know what this does")
+            .arg(Arg::with_name("style").help("How the window contents will get styled. (If styling Text, List, or ScoreBoard [bold | highlight | blink | underline]) | (If styling a ProgressBar [[low | blink], <character>]")
                 .index(4).takes_value(true))
             .arg(Arg::with_name("x_pos").help("The X coordinate of the window to create")
                 .index(5).takes_value(true)
@@ -101,7 +98,7 @@ impl Garfanzo {
             .arg(Arg::with_name("height").help("The height of the window to create")
                 .index(8).takes_value(true)
                 .validator(|h| h.parse::<i32>().map(|_| ()).map_err(|_| format!("height must be an integer"))))
-            .arg(Arg::with_name("priority").help("TODO I don't know what this does")
+            .arg(Arg::with_name("priority").help("Allows overwriting of pre-existing windows")
                 .index(9).takes_value(false).short("!"))
     }
 

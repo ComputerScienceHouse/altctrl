@@ -5,6 +5,9 @@ This project is the successor to the prototype built by Will Nilges. (git.nilges
 
 The general idea is that we're going to have several co-op™ minigames for people to walk up to the booth and play. Meanwhile, this control panel will be sitting around and allow other passerbys to view game stats, press buttons, and change something in the game! Nobody really knows what exactly this whole thing will turn into, but I thought it was a neat project that I wanted to do well, and so I made this repo. 
 
+![initial_test](https://user-images.githubusercontent.com/42927786/107730232-dfd91a80-6cc0-11eb-88c3-4534b813fcd1.png)
+
+#### The initial prototype hooked up for the first time, in all its glory
 
 ### Dependencies:
 
